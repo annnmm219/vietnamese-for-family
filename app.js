@@ -1,18 +1,15 @@
+const LESSONS = window.COURSE_LESSONS || [];
+
 const STORAGE_KEYS = {
   dialect: "vff-primary-dialect",
-  progress: "vff-lesson-01-progress",
-  learnerName: "vff-learner-name"
+  currentLesson: "vff-current-lesson",
+  progressPrefix: "vff-progress-lesson-"
 };
 
 const state = {
   dialect: localStorage.getItem(STORAGE_KEYS.dialect) || "south",
-  completed: new Set(JSON.parse(localStorage.getItem(STORAGE_KEYS.progress) || "[]")),
-  learnerName: localStorage.getItem(STORAGE_KEYS.learnerName) || ""
+  currentLesson: Number(localStorage.getItem(STORAGE_KEYS.currentLesson) || 1)
 };
-
-const checkpoints = ["quiz-1", "quiz-2", "quiz-3", "scenario"];
-let activeAudio = null;
-let activeTimeHandler = null;
 
 const AUDIO_MASTERS = {
   north: "audio/north/lesson-01/master.mp3",
@@ -21,71 +18,47 @@ const AUDIO_MASTERS = {
 
 const AUDIO_CUES = {
   north: {
-    "vocab-mom": [0.00, 0.38],
-    "vocab-dad": [0.86, 1.47],
-    "vocab-self-child": [1.89, 2.35],
-    "vocab-grandfather": [2.79, 3.40],
-    "vocab-grandmother": [3.81, 4.23],
-    "vocab-polite-yes": [4.80, 5.31],
-    "phrase-hello-mom": [5.72, 6.66],
-    "phrase-hello-dad": [7.46, 8.37],
-    "phrase-hello-grandparents": [9.14, 10.21],
-    "phrase-nice-to-meet": [11.02, 12.55],
-    "compare-dad-politeness": [13.32, 14.80],
-    "scenario-mother-arrival": [15.63, 16.72],
-    "scenario-reply": [17.57, 19.22],
-    "final-greeting": [19.99, 21.04]
+    "vocab-mom": [0.00, 0.38], "vocab-dad": [0.86, 1.47], "vocab-self-child": [1.89, 2.35],
+    "vocab-grandfather": [2.79, 3.40], "vocab-grandmother": [3.81, 4.23], "vocab-polite-yes": [4.80, 5.31],
+    "phrase-hello-mom": [5.72, 6.66], "phrase-hello-dad": [7.46, 8.37], "phrase-hello-grandparents": [9.14, 10.21],
+    "phrase-nice-to-meet": [11.02, 12.55], "compare-0": [13.32, 14.80], "scenario": [15.63, 16.72],
+    "scenario-reply": [17.57, 19.22], "final": [19.99, 21.04]
   },
   south: {
-    "vocab-mom": [0.00, 0.36],
-    "vocab-dad": [0.69, 1.04],
-    "vocab-self-child": [1.37, 1.72],
-    "vocab-grandfather": [2.03, 2.35],
-    "vocab-grandmother": [2.70, 3.09],
-    "vocab-polite-yes": [3.45, 3.87],
-    "phrase-hello-mom": [4.25, 5.61],
-    "phrase-hello-dad": [6.39, 7.74],
-    "phrase-hello-grandparents": [8.53, 10.13],
-    "phrase-nice-to-meet": [10.90, 13.06],
-    "compare-dad-politeness": [13.46, 14.58],
-    "scenario-mother-arrival": [14.97, 16.04],
-    "scenario-reply": [16.81, 18.58],
-    "final-greeting": [19.33, 20.89]
+    "vocab-mom": [0.00, 0.36], "vocab-dad": [0.69, 1.04], "vocab-self-child": [1.37, 1.72],
+    "vocab-grandfather": [2.03, 2.35], "vocab-grandmother": [2.70, 3.09], "vocab-polite-yes": [3.45, 3.87],
+    "phrase-hello-mom": [4.25, 5.61], "phrase-hello-dad": [6.39, 7.74], "phrase-hello-grandparents": [8.53, 10.13],
+    "phrase-nice-to-meet": [10.90, 13.06], "compare-0": [13.46, 14.58], "scenario": [14.97, 16.04],
+    "scenario-reply": [16.81, 18.58], "final": [19.33, 20.89]
   }
 };
 
 const audioPlayers = Object.fromEntries(
   Object.entries(AUDIO_MASTERS).map(([dialect, src]) => {
     const audio = new Audio(src);
-    audio.preload = "auto";
+    audio.preload = "metadata";
     return [dialect, audio];
   })
 );
 
-const vocabulary = [
-  { id: "mom", meaning: "Mom / mother", north: "mẹ", south: "mẹ", note: { north: "Mẹ is standard and widely used in the North.", south: "Mẹ is widely understood. Má is also common in many Southern families, so ask your partner what their family actually uses." } },
-  { id: "dad", meaning: "Dad / father", north: "bố", south: "ba", note: { north: "Bố is a common Northern family term for dad.", south: "Ba is a common Southern family term for dad." } },
-  { id: "self-child", meaning: "You, when speaking to parents", north: "con", south: "con", note: { north: "With parents or parents-in-law, you commonly refer to yourself as con rather than tôi.", south: "With parents or parents-in-law, you commonly refer to yourself as con rather than tôi." } },
-  { id: "grandfather", meaning: "Grandfather", north: "ông", south: "ông", note: { north: "For your partner's grandfather, you normally call him ông and yourself cháu.", south: "For your partner's grandfather, you normally call him ông and yourself cháu." } },
-  { id: "grandmother", meaning: "Grandmother", north: "bà", south: "bà", note: { north: "For your partner's grandmother, you normally call her bà and yourself cháu.", south: "For your partner's grandmother, you normally call her bà and yourself cháu." } },
-  { id: "polite-yes", meaning: "Polite acknowledgement", north: "vâng ạ", south: "dạ", note: { north: "Vâng and ạ are common polite markers. Dạ is also understood and used.", south: "Dạ is extremely useful for politely acknowledging an older person." } }
-];
+let activeAudio = null;
+let activeTimeHandler = null;
 
-const basePhrases = [
-  { id: "hello-mom", english: "Hello, Mom.", north: "Con chào mẹ ạ.", south: "Dạ, con chào mẹ." },
-  { id: "hello-dad", english: "Hello, Dad.", north: "Con chào bố ạ.", south: "Dạ, con chào ba." },
-  { id: "hello-grandparents", english: "Hello, Grandma and Grandpa.", north: "Cháu chào ông bà ạ.", south: "Dạ, cháu chào ông bà." },
-  { id: "nice-to-meet", english: "I'm very happy to meet you both.", north: "Con rất vui được gặp bố mẹ ạ.", south: "Dạ, con rất vui được gặp ba mẹ." }
-];
-
-const root = document.getElementById("lesson-root");
+const courseNav = document.getElementById("course-nav");
+const heroEyebrow = document.getElementById("hero-eyebrow");
+const heroTitle = document.getElementById("hero-title");
+const heroText = document.getElementById("hero-text");
+const lessonBadge = document.getElementById("lesson-badge");
+const lessonRoot = document.getElementById("lesson-root");
 const progressText = document.getElementById("progress-text");
 const progressBar = document.getElementById("progress-bar");
 const dialectSummary = document.getElementById("dialect-summary");
+const audioNote = document.getElementById("audio-note");
 const audioStatus = document.getElementById("audio-status");
+const resetButton = document.getElementById("reset-progress");
 
 function esc(value) {
-  return String(value)
+  return String(value ?? "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
@@ -99,6 +72,45 @@ function dialectLabel(dialect) {
 
 function otherDialect(dialect) {
   return dialect === "north" ? "south" : "north";
+}
+
+function currentLesson() {
+  return LESSONS.find(lesson => lesson.id === state.currentLesson) || LESSONS[0];
+}
+
+function progressKey(lessonId) {
+  return `${STORAGE_KEYS.progressPrefix}${lessonId}`;
+}
+
+function getProgress(lessonId) {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(progressKey(lessonId)) || "[]"));
+  } catch {
+    return new Set();
+  }
+}
+
+function saveProgress(lessonId, progress) {
+  localStorage.setItem(progressKey(lessonId), JSON.stringify([...progress]));
+}
+
+function checkpointsFor(lesson) {
+  return [...lesson.quizzes.map(q => `quiz-${q.id}`), "scenario"];
+}
+
+function progressPercent(lesson) {
+  const progress = getProgress(lesson.id);
+  const checkpoints = checkpointsFor(lesson);
+  return Math.round((checkpoints.filter(id => progress.has(id)).length / checkpoints.length) * 100);
+}
+
+function isLessonComplete(lesson) {
+  return progressPercent(lesson) === 100;
+}
+
+function answerText(answer) {
+  if (answer.text) return answer.text;
+  return answer[state.dialect] || "";
 }
 
 function setAudioStatus(message, isError = false) {
@@ -117,10 +129,9 @@ function stopActiveAudio() {
   activeAudio = null;
 }
 
-function playRegionalAudio(dialect, id, slow = false) {
-  const cue = AUDIO_CUES[dialect]?.[id];
+function playLessonOneAudio(dialect, cueId, slow = false) {
+  const cue = AUDIO_CUES[dialect]?.[cueId];
   const audio = audioPlayers[dialect];
-
   if (!cue || !audio) {
     setAudioStatus(`No ${dialectLabel(dialect)} audio cue exists for this item.`, true);
     return;
@@ -130,360 +141,294 @@ function playRegionalAudio(dialect, id, slow = false) {
   activeAudio = audio;
   audio.playbackRate = slow ? 0.72 : 1;
 
-  const begin = () => {
+  const startPlayback = () => {
     audio.currentTime = cue[0];
     activeTimeHandler = () => {
-      if (audio.currentTime >= cue[1]) {
-        stopActiveAudio();
-      }
+      if (audio.currentTime >= cue[1]) stopActiveAudio();
     };
     audio.addEventListener("timeupdate", activeTimeHandler);
     setAudioStatus(`Playing ${dialectLabel(dialect)}${slow ? " slowly" : ""}.`);
     audio.play().catch(() => {
       stopActiveAudio();
-      setAudioStatus(`Could not play the ${dialectLabel(dialect)} recording. Refresh the page and try again.`, true);
+      setAudioStatus("Lesson 1 regional master audio is not uploaded yet. The curriculum can still be tested without it.", true);
     });
   };
 
   if (audio.readyState >= 1) {
-    begin();
+    startPlayback();
   } else {
-    audio.addEventListener("loadedmetadata", begin, { once: true });
+    audio.addEventListener("loadedmetadata", startPlayback, { once: true });
     audio.addEventListener("error", () => {
       stopActiveAudio();
-      setAudioStatus(`${dialectLabel(dialect)} master audio could not be loaded.`, true);
+      setAudioStatus("Lesson 1 regional master audio is not uploaded yet. The curriculum can still be tested without it.", true);
     }, { once: true });
     audio.load();
   }
 }
 
-function audioButtons(id, dialect, includeSlow = false) {
+function audioControl(lesson, cueId, includeSlow = false) {
+  if (!lesson.audioReady) {
+    return `<span class="audio-queued" title="Final audio will be generated after the curriculum is locked">Audio queued</span>`;
+  }
   return `<div class="audio-actions">
-    <button class="speak-button" type="button" data-audio-id="${esc(id)}" data-audio-dialect="${dialect}">🔊 ${dialectLabel(dialect)}</button>
-    ${includeSlow ? `<button class="slow-button" type="button" data-audio-id="${esc(id)}" data-audio-dialect="${dialect}" data-slow="true">Slow</button>` : ""}
+    <button class="speak-button" type="button" data-audio-cue="${esc(cueId)}">🔊 ${dialectLabel(state.dialect)}</button>
+    ${includeSlow ? `<button class="slow-button" type="button" data-audio-cue="${esc(cueId)}" data-slow="true">Slow</button>` : ""}
   </div>`;
 }
 
-function saveProgress() {
-  localStorage.setItem(STORAGE_KEYS.progress, JSON.stringify([...state.completed]));
+function renderCourseNav() {
+  courseNav.innerHTML = LESSONS.map(lesson => {
+    const active = lesson.id === state.currentLesson;
+    const complete = isLessonComplete(lesson);
+    const pct = progressPercent(lesson);
+    return `<button type="button" class="lesson-tab ${active ? "active" : ""} ${complete ? "complete" : ""}" data-lesson-id="${lesson.id}" aria-current="${active ? "page" : "false"}">
+      <span class="lesson-tab-number">${complete ? "✓" : lesson.id}</span>
+      <span class="lesson-tab-copy"><strong>${esc(lesson.shortTitle)}</strong><small>${pct}% complete</small></span>
+    </button>`;
+  }).join("");
 }
 
-function markComplete(id) {
-  state.completed.add(id);
-  saveProgress();
-  updateProgress();
-  renderCompletionState();
-}
+function renderHero() {
+  const lesson = currentLesson();
+  heroEyebrow.textContent = lesson.eyebrow;
+  heroTitle.textContent = lesson.hero;
+  heroText.textContent = lesson.intro;
+  lessonBadge.textContent = `Lesson ${lesson.id} · ${lesson.title}`;
 
-function updateProgress() {
-  const completedCount = checkpoints.filter(id => state.completed.has(id)).length;
-  const percent = Math.round((completedCount / checkpoints.length) * 100);
-  progressText.textContent = `${percent}%`;
-  progressBar.style.width = `${percent}%`;
-}
-
-function updateDialectControls() {
   document.querySelectorAll(".dialect-button").forEach(button => {
     const active = button.dataset.dialect === state.dialect;
     button.classList.toggle("active", active);
     button.setAttribute("aria-pressed", String(active));
   });
-  dialectSummary.textContent = `You will practise ${dialectLabel(state.dialect)} Vietnamese and learn to recognise ${dialectLabel(otherDialect(state.dialect))} differences.`;
+
+  dialectSummary.textContent = `Practise ${dialectLabel(state.dialect)} Vietnamese and learn to recognise ${dialectLabel(otherDialect(state.dialect))} differences.`;
 }
 
-function renderVocabulary() {
-  const cards = vocabulary.map(item => {
+function renderStatus() {
+  const lesson = currentLesson();
+  const pct = progressPercent(lesson);
+  progressText.textContent = `${pct}%`;
+  progressBar.style.width = `${pct}%`;
+
+  audioNote.hidden = false;
+  if (lesson.audioReady) {
+    setAudioStatus("Lesson 1 uses separate HN and SG master recordings when those files are present in GitHub.");
+  } else {
+    setAudioStatus(`Lesson ${lesson.id} wording is still being locked. Final HN/SG audio will be produced in one batch after the curriculum is complete.`);
+  }
+}
+
+function renderVocabulary(lesson) {
+  const cards = lesson.vocabulary.map(item => {
     const word = item[state.dialect];
-    const alternate = item[otherDialect(state.dialect)];
-    const differs = word !== alternate;
+    const other = item[otherDialect(state.dialect)];
+    const note = state.dialect === "north" ? item.noteNorth : item.noteSouth;
+    const differs = word !== other;
+
     return `<article class="vocab-card">
       <div class="vocab-top">
-        <div>
-          <h3 class="vocab-word">${esc(word)}</h3>
-          <p class="vocab-meaning">${esc(item.meaning)}</p>
-        </div>
-        ${audioButtons(`vocab-${item.id}`, state.dialect)}
+        <div><h3 class="vocab-word">${esc(word)}</h3><p class="vocab-meaning">${esc(item.meaning)}</p></div>
+        ${audioControl(lesson, `vocab-${item.id}`)}
       </div>
-      <p class="vocab-note">${esc(item.note[state.dialect])}${differs ? ` <strong>${dialectLabel(otherDialect(state.dialect))}:</strong> ${esc(alternate)}.` : ""}</p>
+      <p class="vocab-note">${esc(note)}${differs ? ` <strong>${dialectLabel(otherDialect(state.dialect))}:</strong> ${esc(other)}.` : ""}</p>
     </article>`;
   }).join("");
 
-  return `<section class="lesson-section" id="family-words">
-    <div class="section-head">
-      <p class="section-kicker">Part 1 · Family language</p>
-      <h2>Do not start with “I” and “you.”</h2>
-      <p>Vietnamese family conversation depends heavily on relationships. Your first job is knowing what to call the person in front of you and what to call yourself.</p>
-    </div>
+  return `<section class="lesson-section">
+    <div class="section-head"><p class="section-kicker">Part 1 · Core language</p><h2>Words you will actually hear.</h2><p>Learn the active form for your track, but notice the regional alternative whenever it changes.</p></div>
     <div class="section-body"><div class="vocab-grid">${cards}</div></div>
   </section>`;
 }
 
-function renderPhrases() {
-  const learnerName = state.learnerName.trim() || "Alex";
-  const staticCards = basePhrases.map(item => `<article class="phrase-card">
-    <div>
-      <p class="phrase-vietnamese">${esc(item[state.dialect])}</p>
-      <p class="phrase-english">${esc(item.english)}</p>
-    </div>
-    ${audioButtons(`phrase-${item.id}`, state.dialect, true)}
+function renderPhrases(lesson) {
+  const cards = lesson.phrases.map(item => `<article class="phrase-card">
+    <div><p class="phrase-vietnamese">${esc(item[state.dialect])}</p><p class="phrase-english">${esc(item.english)}</p></div>
+    ${audioControl(lesson, `phrase-${item.id}`, true)}
   </article>`).join("");
 
-  const namePhrase = `Con tên là ${learnerName}.`;
-
-  return `<section class="lesson-section" id="greetings">
-    <div class="section-head">
-      <p class="section-kicker">Part 2 · At the door</p>
-      <h2>Five lines worth learning before the visit.</h2>
-      <p>Listen first, then repeat aloud. The fixed lesson phrases use approved regional recordings. Slow replays the same recording at reduced speed.</p>
-    </div>
+  const pattern = lesson.pattern;
+  return `<section class="lesson-section">
+    <div class="section-head"><p class="section-kicker">Part 2 · Useful lines</p><h2>Say something useful, not something textbook-perfect.</h2><p>These are deliberately short. The goal is to keep a family conversation moving.</p></div>
     <div class="section-body">
-      <div class="name-row">
-        <label>Your name
-          <input id="learner-name" type="text" maxlength="30" value="${esc(state.learnerName)}" placeholder="e.g. Alex" autocomplete="given-name" />
-        </label>
-        <span class="vocab-note">We use your name in the practice sentence.</span>
-      </div>
-      <div class="phrase-list">
-        ${staticCards}
-        <article class="phrase-card">
-          <div>
-            <p class="phrase-vietnamese">${esc(namePhrase)}</p>
-            <p class="phrase-english">My name is ${esc(learnerName)}.</p>
-          </div>
-          <span class="vocab-note">Personalised audio coming later</span>
-        </article>
+      <div class="phrase-list">${cards}</div>
+      <div class="pattern-card">
+        <span class="pattern-label">${esc(pattern.label)}</span>
+        <p class="pattern-vietnamese">${esc(pattern[state.dialect])}</p>
+        <p class="pattern-english">${esc(pattern.english)}</p>
+        <small>Pattern card: personalise the part in brackets or ellipses.</small>
       </div>
     </div>
   </section>`;
 }
 
-function renderComparison() {
-  const primary = state.dialect;
-  const secondary = otherDialect(primary);
-  const dad = vocabulary.find(item => item.id === "dad");
-  const yes = vocabulary.find(item => item.id === "polite-yes");
+function renderComparison(lesson) {
+  const rows = lesson.comparison.map((item, index) => `<div class="comparison-row">
+    <div><span>${esc(item.meaning)}</span></div>
+    <div class="comparison-term ${state.dialect === "north" ? "active-term" : ""}"><small>Northern</small><strong>${esc(item.north)}</strong></div>
+    <div class="comparison-term ${state.dialect === "south" ? "active-term" : ""}"><small>Southern</small><strong>${esc(item.south)}</strong></div>
+    ${index === 0 ? audioControl(lesson, "compare-0") : ""}
+  </div>`).join("");
 
-  const card = (dialect, isPrimary) => `<article class="compare-card ${isPrimary ? "primary" : ""}">
-    <span class="compare-label">${dialectLabel(dialect)}${isPrimary ? " · your speaking mode" : " · recognition mode"}</span>
-    <p class="compare-word">${esc(dad[dialect])}</p>
-    <p><strong>Dad:</strong> ${esc(dad[dialect])}</p>
-    <p><strong>Polite acknowledgement:</strong> ${esc(yes[dialect])}</p>
-    ${audioButtons("compare-dad-politeness", dialect)}
-  </article>`;
-
-  return `<section class="lesson-section" id="north-south">
-    <div class="section-head">
-      <p class="section-kicker">Part 3 · North + South</p>
-      <h2>Speak one. Recognise both.</h2>
-      <p>Each card now plays the matching HN or SG regional recording.</p>
-    </div>
-    <div class="section-body">
-      <div class="compare-grid">${card(primary, true)}${card(secondary, false)}</div>
-      <p class="culture-note"><strong>Important:</strong> Vietnamese varies by region and by family. “Southern” and “Northern” are useful learning labels, not rigid rules for every household.</p>
-    </div>
+  return `<section class="lesson-section">
+    <div class="section-head"><p class="section-kicker">Part 3 · North + South</p><h2>Speak one. Recognise both.</h2><p>Your active track is highlighted. Recognition matters because real families mix regions, generations and habits.</p></div>
+    <div class="section-body"><div class="comparison-table">${rows}</div></div>
   </section>`;
 }
 
-function quizQuestion(id, number, question, answers, explanation) {
-  const done = state.completed.has(id);
-  const options = answers.map(answer => `<button class="answer-button ${done && answer.correct ? "correct" : ""}" type="button" data-quiz="${id}" data-correct="${answer.correct}" ${done ? "disabled" : ""}>${esc(answer.text)}</button>`).join("");
+function renderQuiz(lesson) {
+  const progress = getProgress(lesson.id);
+  const cards = lesson.quizzes.map((quiz, index) => {
+    const checkpoint = `quiz-${quiz.id}`;
+    const done = progress.has(checkpoint);
+    const options = quiz.answers.map(answer => `<button class="answer-button ${done && answer.correct ? "correct" : ""}" type="button" data-quiz-id="${esc(quiz.id)}" data-correct="${answer.correct}" ${done ? "disabled" : ""}>${esc(answerText(answer))}</button>`).join("");
 
-  return `<article class="quiz-card" data-quiz-card="${id}">
-    <span class="quiz-number">Question ${number}</span>
-    <p class="quiz-question">${esc(question)}</p>
-    <div class="answer-grid">${options}</div>
-    <p class="feedback ${done ? "success" : ""}">${done ? esc(explanation) : ""}</p>
-  </article>`;
-}
+    return `<article class="quiz-card" data-quiz-card="${esc(quiz.id)}">
+      <span class="quiz-number">Question ${index + 1}</span>
+      <p class="quiz-question">${esc(quiz.question)}</p>
+      <div class="answer-grid">${options}</div>
+      <p class="feedback ${done ? "success" : ""}">${done ? esc(quiz.explanation) : ""}</p>
+    </article>`;
+  }).join("");
 
-function renderQuiz() {
-  const dadCorrect = state.dialect === "north" ? "bố" : "ba";
-  const dadWrong = state.dialect === "north" ? "ba" : "bố";
-  const greetingCorrect = state.dialect === "north" ? "Con chào mẹ ạ." : "Dạ, con chào mẹ.";
-
-  return `<section class="lesson-section" id="check-yourself">
-    <div class="section-head">
-      <p class="section-kicker">Part 4 · Check yourself</p>
-      <h2>Three things you should know before continuing.</h2>
-      <p>Wrong answers are part of the lesson. Pick the answer that sounds natural and respectful in this family context.</p>
-    </div>
-    <div class="section-body"><div class="quiz-list">
-      ${quizQuestion("quiz-1", 1, "You meet your partner's mother. Which greeting fits your selected track?", [
-        { text: greetingCorrect, correct: true },
-        { text: "Tôi chào bạn.", correct: false },
-        { text: "Xin chào mẹ của bạn.", correct: false }
-      ], "Correct. The response uses the parent-child family relationship and an appropriate politeness pattern for this track.")}
-      ${quizQuestion("quiz-2", 2, "When speaking directly to your partner's parents, what do you commonly call yourself?", [
-        { text: "con", correct: true },
-        { text: "tôi", correct: false },
-        { text: "bạn", correct: false }
-      ], "Correct. In this relationship, con is the natural family pronoun to learn first.")}
-      ${quizQuestion("quiz-3", 3, `You chose ${dialectLabel(state.dialect)} Vietnamese. Which word are we teaching you to actively use for “Dad”?`, [
-        { text: dadCorrect, correct: true },
-        { text: dadWrong, correct: false },
-        { text: "ông", correct: false }
-      ], `Correct. Your speaking target is ${dadCorrect}; you should still recognise the other regional form.`)}
-    </div></div>
+  return `<section class="lesson-section">
+    <div class="section-head"><p class="section-kicker">Part 4 · Check yourself</p><h2>Understand the situation, not every word.</h2><p>Wrong answers stay useful: they show where literal translation would lead you astray.</p></div>
+    <div class="section-body"><div class="quiz-list">${cards}</div></div>
   </section>`;
 }
 
-function renderScenario() {
-  const isNorth = state.dialect === "north";
-  const motherLine = isNorth ? "Hai đứa mới tới à?" : "Hai đứa mới tới hả?";
-  const correctReply = isNorth ? "Vâng ạ, bọn con mới tới." : "Dạ, tụi con mới tới.";
-  const done = state.completed.has("scenario");
-  const alternatives = [correctReply, "Tôi tới.", "Không biết."];
+function renderScenario(lesson) {
+  const progress = getProgress(lesson.id);
+  const done = progress.has("scenario");
+  const scenario = lesson.scenario;
+  const line = scenario[state.dialect];
+  const answers = scenario.answers.map(answer => `<button class="answer-button ${done && answer.correct ? "correct" : ""}" type="button" data-scenario-answer data-correct="${answer.correct}" ${done ? "disabled" : ""}>${esc(answerText(answer))}</button>`).join("");
 
-  return `<section class="lesson-section" id="mini-scenario">
-    <div class="section-head">
-      <p class="section-kicker">Final practice · The front door</p>
-      <h2>Your partner's mother opens the door.</h2>
-      <p>Do not translate every word. Understand the situation and choose a natural response.</p>
-    </div>
+  return `<section class="lesson-section">
+    <div class="section-head"><p class="section-kicker">Final practice · Family scenario</p><h2>Respond without asking your partner to rescue you.</h2><p>Read the situation first. Then choose the response that keeps the interaction natural.</p></div>
     <div class="section-body"><div class="scenario" data-scenario-card>
       <div class="scenario-scene">
-        <span class="scenario-speaker">Mother</span>
-        <p class="scenario-line">“${motherLine}”</p>
-        ${audioButtons("scenario-mother-arrival", state.dialect, true)}
-        <p class="scenario-translation">Meaning: “You two just arrived?” / “Did you two just get here?”</p>
+        <span class="scenario-speaker">${esc(scenario.speaker)}</span>
+        <p class="scenario-line">“${esc(line)}”</p>
+        ${audioControl(lesson, "scenario", true)}
+        <p class="scenario-translation">${esc(scenario.english)}</p>
       </div>
       <div class="scenario-actions">
         <p><strong>What do you say back?</strong></p>
-        ${alternatives.map((text, i) => `<button class="answer-button ${done && i === 0 ? "correct" : ""}" type="button" data-scenario-answer data-correct="${i === 0}" ${done ? "disabled" : ""}>${esc(text)}</button>`).join("")}
-        <p class="feedback ${done ? "success" : ""}" data-scenario-feedback>${done ? "Good. You acknowledged her politely and answered as a couple." : ""}</p>
-        ${done ? audioButtons("scenario-reply", state.dialect, true) : ""}
+        ${answers}
+        <p class="feedback ${done ? "success" : ""}" data-scenario-feedback>${done ? esc(scenario.success) : ""}</p>
+        ${done && lesson.audioReady ? audioControl(lesson, "scenario-reply", true) : ""}
       </div>
     </div></div>
   </section>`;
 }
 
-function renderCompletion() {
-  const finished = checkpoints.every(id => state.completed.has(id));
-  const percent = Math.round((checkpoints.filter(id => state.completed.has(id)).length / checkpoints.length) * 100);
+function renderCompletion(lesson) {
+  const pct = progressPercent(lesson);
+  const finished = pct === 100;
+  const nextLesson = LESSONS.find(item => item.id === lesson.id + 1);
 
-  return `<section class="completion-card" id="lesson-completion" data-completion-card>
-    <p class="section-kicker" style="color:#f0b8c2">Lesson 1</p>
-    <div class="completion-score">${percent}%</div>
-    <h2>${finished ? "You can enter the house." : "Finish the family check."}</h2>
-    <p>${finished ? "You can greet parents and grandparents, use con in the parent-child relationship, recognise a key North/South difference, and respond at the front door." : "Complete the three questions and the front-door scenario."}</p>
-    ${finished ? audioButtons("final-greeting", state.dialect, true) : ""}
+  return `<section class="completion-card">
+    <p class="section-kicker" style="color:#f0b8c2">Lesson ${lesson.id}</p>
+    <div class="completion-score">${pct}%</div>
+    <h2>${finished ? "Lesson complete." : "Finish the family check."}</h2>
+    <p>${finished ? esc(lesson.outcome) : "Complete the three questions and the final family scenario."}</p>
+    <div class="completion-actions">
+      ${finished && lesson.audioReady && lesson.finalNorth ? audioControl(lesson, "final", true) : ""}
+      ${finished && nextLesson ? `<button type="button" class="next-lesson-button" data-lesson-id="${nextLesson.id}">Next: Lesson ${nextLesson.id}</button>` : ""}
+    </div>
   </section>`;
 }
 
-function renderCompletionState() {
-  const completion = document.querySelector("[data-completion-card]");
-  if (completion) completion.outerHTML = renderCompletion();
-}
-
 function renderLesson() {
-  root.innerHTML = [
-    renderVocabulary(),
-    renderPhrases(),
-    renderComparison(),
-    renderQuiz(),
-    renderScenario(),
-    renderCompletion()
+  const lesson = currentLesson();
+  renderCourseNav();
+  renderHero();
+  renderStatus();
+
+  lessonRoot.innerHTML = [
+    renderVocabulary(lesson),
+    renderPhrases(lesson),
+    renderComparison(lesson),
+    renderQuiz(lesson),
+    renderScenario(lesson),
+    renderCompletion(lesson)
   ].join("");
-
-  updateDialectControls();
-  updateProgress();
 }
 
-function handleQuizClick(button) {
-  const id = button.dataset.quiz;
-  const card = button.closest("[data-quiz-card]");
-  const feedback = card.querySelector(".feedback");
-
-  if (button.dataset.correct === "true") {
-    button.classList.add("correct");
-    card.querySelectorAll(".answer-button").forEach(answer => answer.disabled = true);
-
-    const messages = {
-      "quiz-1": "Correct. You used the family relationship and the politeness pattern taught in your selected track.",
-      "quiz-2": "Correct. In this relationship, con is the natural family pronoun to learn first.",
-      "quiz-3": `Correct. Your speaking target is ${state.dialect === "north" ? "bố" : "ba"}; you should still recognise the other regional form.`
-    };
-
-    feedback.textContent = messages[id];
-    feedback.classList.add("success");
-    markComplete(id);
-  } else {
-    button.classList.add("wrong");
-    button.disabled = true;
-    feedback.textContent = "Not this one. Try again and think about the family relationship, not just literal translation.";
-  }
+function markComplete(checkpoint) {
+  const lesson = currentLesson();
+  const progress = getProgress(lesson.id);
+  progress.add(checkpoint);
+  saveProgress(lesson.id, progress);
+  renderLesson();
 }
 
-function handleScenarioClick(button) {
-  const card = button.closest("[data-scenario-card]");
-  const feedback = card.querySelector("[data-scenario-feedback]");
-
-  if (button.dataset.correct === "true") {
-    button.classList.add("correct");
-    card.querySelectorAll("[data-scenario-answer]").forEach(answer => answer.disabled = true);
-    feedback.textContent = "Good. You acknowledged her politely and answered as a couple.";
-    feedback.classList.add("success");
-    markComplete("scenario");
-    renderLesson();
-  } else {
-    button.classList.add("wrong");
-    button.disabled = true;
-    feedback.textContent = "Understandable, but not the natural family response we are practising. Try again.";
-  }
+function switchLesson(lessonId) {
+  const lesson = LESSONS.find(item => item.id === lessonId);
+  if (!lesson) return;
+  stopActiveAudio();
+  state.currentLesson = lessonId;
+  localStorage.setItem(STORAGE_KEYS.currentLesson, String(lessonId));
+  renderLesson();
+  document.getElementById("top").scrollIntoView({ behavior: "smooth" });
 }
 
 document.addEventListener("click", event => {
+  const lessonButton = event.target.closest("[data-lesson-id]");
+  if (lessonButton) {
+    switchLesson(Number(lessonButton.dataset.lessonId));
+    return;
+  }
+
   const dialectButton = event.target.closest(".dialect-button");
   if (dialectButton) {
     stopActiveAudio();
     state.dialect = dialectButton.dataset.dialect;
     localStorage.setItem(STORAGE_KEYS.dialect, state.dialect);
-    setAudioStatus(`${dialectLabel(state.dialect)} selected. Audio will use the matching regional recording.`);
     renderLesson();
     return;
   }
 
-  const regionalAudioButton = event.target.closest("[data-audio-id]");
-  if (regionalAudioButton) {
-    playRegionalAudio(
-      regionalAudioButton.dataset.audioDialect,
-      regionalAudioButton.dataset.audioId,
-      regionalAudioButton.dataset.slow === "true"
-    );
+  const audioButton = event.target.closest("[data-audio-cue]");
+  if (audioButton) {
+    playLessonOneAudio(state.dialect, audioButton.dataset.audioCue, audioButton.dataset.slow === "true");
     return;
   }
 
-  const quizButton = event.target.closest("[data-quiz]");
+  const quizButton = event.target.closest("[data-quiz-id]");
   if (quizButton) {
-    handleQuizClick(quizButton);
+    const lesson = currentLesson();
+    const quiz = lesson.quizzes.find(item => item.id === quizButton.dataset.quizId);
+    const card = quizButton.closest("[data-quiz-card]");
+    const feedback = card.querySelector(".feedback");
+
+    if (quizButton.dataset.correct === "true") {
+      markComplete(`quiz-${quiz.id}`);
+    } else {
+      quizButton.classList.add("wrong");
+      quizButton.disabled = true;
+      feedback.textContent = "Not this one. Try again and focus on the relationship and situation rather than literal word-for-word translation.";
+    }
     return;
   }
 
   const scenarioButton = event.target.closest("[data-scenario-answer]");
   if (scenarioButton) {
-    handleScenarioClick(scenarioButton);
+    const feedback = scenarioButton.closest("[data-scenario-card]").querySelector("[data-scenario-feedback]");
+    if (scenarioButton.dataset.correct === "true") {
+      markComplete("scenario");
+    } else {
+      scenarioButton.classList.add("wrong");
+      scenarioButton.disabled = true;
+      feedback.textContent = "Understandable, but not the natural family response this lesson is practising. Try again.";
+    }
   }
 });
 
-document.addEventListener("input", event => {
-  if (event.target.id !== "learner-name") return;
-
-  state.learnerName = event.target.value;
-  localStorage.setItem(STORAGE_KEYS.learnerName, state.learnerName);
-
-  const cursor = event.target.selectionStart;
+resetButton.addEventListener("click", () => {
+  localStorage.removeItem(progressKey(currentLesson().id));
   renderLesson();
-  const replacement = document.getElementById("learner-name");
-  replacement.focus();
-  replacement.setSelectionRange(cursor, cursor);
 });
 
-document.getElementById("reset-progress").addEventListener("click", () => {
-  state.completed.clear();
-  saveProgress();
-  renderLesson();
-  document.getElementById("top").scrollIntoView({ behavior: "smooth" });
-});
-
-setAudioStatus("Regional audio is ready: HN for Northern and SG for Southern.");
+if (!LESSONS.some(lesson => lesson.id === state.currentLesson)) state.currentLesson = 1;
 renderLesson();
