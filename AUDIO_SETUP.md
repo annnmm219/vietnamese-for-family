@@ -1,99 +1,172 @@
 # Regional audio setup
 
-Lesson 1 is designed to use separate Northern and Southern Vietnamese MP3 files.
+Lesson 1 uses separate Northern and Southern Vietnamese MP3 files.
 
-The website does **not** use the browser's generic `vi-VN` voice as a dialect substitute. This is deliberate: a device voice cannot reliably guarantee Northern vs Southern pronunciation.
+The website does **not** use the browser's generic `vi-VN` voice as a substitute for a regional accent. A generic device voice cannot reliably guarantee Northern versus Southern pronunciation.
 
-## Audio provider used by the generator
+## Current recommended provider: Vbee AIVoice
 
-The repository includes a generator for FPT.AI Text to Speech.
+Vbee provides Vietnamese voices by region, including Northern, Central and Southern voices.
 
-Current voice choices in `scripts/generate_regional_audio.py`:
+For this project, the simplest workflow is **manual generation on the free Vbee plan** rather than an API integration.
 
-- Northern: `banmai`
-- Southern: `lannhi`
+Why manual generation is enough:
 
-FPT.AI also exposes other regional Vietnamese voices, so these can be changed later after listening tests.
+1. each lesson sentence only needs to be generated once
+2. the resulting MP3 is stored permanently in GitHub
+3. learners can replay the stored MP3 without consuming any more TTS quota
+4. no API key or secret is needed in the website
 
-## One-time setup
+The current Vbee free plan provides a daily free allowance and supports downloading generated audio. Paid API access is unnecessary for the first lessons.
 
-### 1. Create an FPT.AI account and Text to Speech project
+## Important: review the accent before approving audio
 
-Go to the FPT.AI Console, enable Text to Speech, create a project, and create an API key.
+Do not trust a regional label blindly.
 
-Do **not** add the API key to `app.js`, a README, an issue, or any other public repository file.
+For every clip:
 
-### 2. Save the key as a GitHub Actions secret
+- choose a voice explicitly labelled **Northern** for `audio/north/...`
+- choose a voice explicitly labelled **Southern** for `audio/south/...`
+- listen to the result before adding it to the course
+- reject any clip that sounds unnatural, mispronounces a tone, or does not match the intended region
 
-In this GitHub repository:
+The course is a language-learning product, so pronunciation quality is part of the content, not just decoration.
 
-**Settings → Secrets and variables → Actions → New repository secret**
+## How to create Lesson 1 audio
 
-Create:
+### 1. Open Vbee AIVoice
+
+Create a free Vbee account and open Text to Speech.
+
+Use the voice filter to select the appropriate region.
+
+For consistency, try to use one Northern voice and one Southern voice throughout Lesson 1 unless testing shows a reason to change.
+
+### 2. Generate the Northern version
+
+Create each Northern phrase below and download it as MP3.
+
+Store files in:
 
 ```text
-Name: FPT_API_KEY
-Secret: <your FPT.AI API key>
+audio/north/lesson-01/
 ```
 
-The website never receives this secret. It is only available to the GitHub Action while generating audio files.
-
-### 3. Run the generator
-
-Go to:
-
-**Actions → Generate regional Vietnamese audio → Run workflow**
-
-Leave `Regenerate existing MP3 files` off for the first run.
-
-The workflow will:
-
-1. generate Northern MP3s with the configured Northern voice
-2. generate Southern MP3s with the configured Southern voice
-3. generate slower versions of lesson phrases and scenarios
-4. save the files under `audio/north/lesson-01/` and `audio/south/lesson-01/`
-5. commit the generated files back to the repository
-
-GitHub Pages will then serve those MP3 files with the lesson.
-
-## Why audio is pre-generated
-
-GitHub Pages is a static website. Calling a paid or quota-limited TTS API directly from browser JavaScript would expose the API key to anyone who visits the site.
-
-Pre-generating the audio avoids that problem:
+Required files:
 
 ```text
-FPT.AI + private GitHub secret
-          ↓
-GitHub Action
-          ↓
-reviewed MP3 files
-          ↓
+vocab-mom.mp3                 mẹ
+vocab-dad.mp3                 bố
+vocab-self-child.mp3          con
+vocab-grandfather.mp3         ông
+vocab-grandmother.mp3         bà
+vocab-polite-yes.mp3          vâng ạ
+
+phrase-hello-mom.mp3          Con chào mẹ ạ.
+phrase-hello-dad.mp3          Con chào bố ạ.
+phrase-hello-grandparents.mp3 Cháu chào ông bà ạ.
+phrase-nice-to-meet.mp3       Con rất vui được gặp bố mẹ ạ.
+
+compare-dad-politeness.mp3    Bố. Vâng ạ.
+scenario-mother-arrival.mp3   Hai đứa mới tới à?
+scenario-reply.mp3            Vâng ạ, bọn con mới tới.
+final-greeting.mp3            Con chào bố mẹ ạ.
+```
+
+### 3. Generate the Southern version
+
+Store files in:
+
+```text
+audio/south/lesson-01/
+```
+
+Required files:
+
+```text
+vocab-mom.mp3                 mẹ
+vocab-dad.mp3                 ba
+vocab-self-child.mp3          con
+vocab-grandfather.mp3         ông
+vocab-grandmother.mp3         bà
+vocab-polite-yes.mp3          dạ
+
+phrase-hello-mom.mp3          Dạ, con chào mẹ.
+phrase-hello-dad.mp3          Dạ, con chào ba.
+phrase-hello-grandparents.mp3 Dạ, cháu chào ông bà.
+phrase-nice-to-meet.mp3       Dạ, con rất vui được gặp ba mẹ.
+
+compare-dad-politeness.mp3    Ba. Dạ.
+scenario-mother-arrival.mp3   Hai đứa mới tới hả?
+scenario-reply.mp3            Dạ, tụi con mới tới.
+final-greeting.mp3            Dạ, con chào ba mẹ.
+```
+
+## Slow versions
+
+For complete phrases and scenario lines, also generate a slower version and add `-slow` before `.mp3`.
+
+Example:
+
+```text
+phrase-hello-dad.mp3
+phrase-hello-dad-slow.mp3
+```
+
+Slow files are expected for:
+
+```text
+phrase-hello-mom-slow.mp3
+phrase-hello-dad-slow.mp3
+phrase-hello-grandparents-slow.mp3
+phrase-nice-to-meet-slow.mp3
+scenario-mother-arrival-slow.mp3
+scenario-reply-slow.mp3
+final-greeting-slow.mp3
+```
+
+Do not create slow versions of isolated one-word vocabulary unless testing shows they are useful.
+
+## Uploading the MP3 files to GitHub
+
+Once downloaded from Vbee:
+
+1. open this repository on GitHub
+2. choose **Add file → Upload files**
+3. upload the Northern files into `audio/north/lesson-01/`
+4. upload the Southern files into `audio/south/lesson-01/`
+5. commit the files
+
+GitHub Pages will then serve the audio directly.
+
+The playback flow becomes:
+
+```text
+Vbee generation once
+        ↓
+review the pronunciation
+        ↓
+MP3 stored in GitHub
+        ↓
 GitHub Pages
-          ↓
-learner clicks 🔊
+        ↓
+learner clicks 🔊 as many times as needed
 ```
 
-## Lesson 1 audio structure
+## Why the previous FPT setup was removed
 
-```text
-audio/
-├── north/
-│   └── lesson-01/
-│       ├── vocab-dad.mp3
-│       ├── phrase-hello-dad.mp3
-│       ├── phrase-hello-dad-slow.mp3
-│       └── ...
-└── south/
-    └── lesson-01/
-        ├── vocab-dad.mp3
-        ├── phrase-hello-dad.mp3
-        ├── phrase-hello-dad-slow.mp3
-        └── ...
-```
+The repository previously contained an FPT.AI API generator. That approach was removed after FPT announced the discontinuation of individual services on the legacy FPT.AI Console in 2026.
 
-## Quality control
+The project should not depend on that retired individual workflow.
 
-AI regional labels are not enough for a language course. After generation, a native Northern speaker and a native Southern speaker should listen to every Lesson 1 file before it is treated as approved teaching audio.
+## Future automation
 
-Long term, important course phrases can be replaced with recordings from real native speakers without changing the lesson code, as long as the filenames stay the same.
+If the course grows to the point where manual audio creation becomes inefficient, an API-based generation pipeline can be added later using a provider that:
+
+- explicitly supports regional Vietnamese voices
+- is available internationally
+- permits our intended use
+- provides stable API access
+- keeps credentials private
+
+For the MVP, reviewed static MP3 files are simpler and safer.
