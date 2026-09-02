@@ -23,10 +23,10 @@
         south: "nha"
       },
       {
-        id: "polite-ending",
-        meaning: "Respectful sentence ending",
-        north: "ạ",
-        south: "dạ"
+        id: "polite-decline",
+        meaning: "Polite 'no thanks' opening",
+        north: "thôi ạ",
+        south: "dạ thôi"
       },
       {
         id: "thank-you",
