@@ -6,214 +6,116 @@
 
 ## Project status
 
-**V0.1 is now playable.**
+**V0.3: Lessons 1–5 are playable.**
 
-The first lesson, **Lesson 1: Meeting the Family**, is implemented as a lightweight static web app. It is designed to run directly on GitHub Pages without a backend or account system.
+The project is a lightweight static web app designed for GitHub Pages. It does not require an account or backend for the current course experience.
 
-### What works in V0.1
+### Current lessons
 
-- Northern and Southern Vietnamese speaking modes
-- one active dialect with recognition of the other
-- family-first vocabulary
-- clickable Vietnamese speech playback
-- normal and slow playback
-- personalised practice sentence using the learner's name
-- North/South vocabulary comparison
-- three interactive comprehension questions
-- a short front-door family scenario
-- lesson progress saved locally in the browser
-- responsive layout for desktop and mobile
+1. **Meeting the Family** — greetings, parents, grandparents, family pronouns, first-door interaction
+2. **Food and Family Meals** — eating, compliments, accepting and declining more food, kitchen vocabulary
+3. **Questions from Relatives** — age, work, relationship duration, marriage questions, polite deflection
+4. **Work, Home and Plans** — simple small talk about work, where you live, likes and plans as a couple
+5. **Helping Around the House** — offering help, dishes, household requests and where things belong
 
-### Audio in V0.1
+Each lesson includes:
 
-V0.1 uses the browser's built-in Vietnamese speech synthesis so the pronunciation buttons work without an API key or backend.
-
-This is intentionally a prototype layer. The wording changes appropriately between the Northern and Southern tracks where relevant, but the actual voice and regional accent depend on the learner's device.
-
-The planned production approach is to replace important speech with reviewed recordings from native Northern and Southern Vietnamese speakers, or reviewed pre-generated audio files stored in the repository.
-
-## Why this project exists
-
-Most beginner Vietnamese courses focus on general vocabulary, travel situations, or formal language study. Someone dating, engaged to, or married to a Vietnamese person often has a much narrower and more immediate problem:
-
-**“I want to understand my partner's family and speak to them without asking my partner to translate everything.”**
-
-Vietnamese for Family starts there.
-
-The course is designed around situations such as:
-
-- meeting parents and grandparents
-- using Vietnamese relationship terms correctly
-- eating with the family
-- helping around the house
-- answering questions from relatives
-- everyday small talk
-- visiting extended family
-- Vietnamese politeness
-- Tết and family gatherings
-- following conversations involving several relatives
-
-## Lesson 1: Meeting the Family
-
-The first lesson teaches the minimum language needed to arrive at a family home and interact respectfully.
-
-It currently covers:
-
-### Family terms
-
-- mẹ
-- bố / ba
-- con
-- ông
-- bà
-- vâng ạ / dạ
-
-### Core greetings
-
-Examples adapt to the learner's selected dialect, including forms such as:
-
-```text
-Con chào mẹ ạ.
-Con chào bố ạ.
-Con chào ba.
-Cháu chào ông bà ạ.
-Con rất vui được gặp bố mẹ ạ.
-Con rất vui được gặp ba mẹ.
-```
-
-Vietnamese family language varies by household, region, age, and relationship status. The course therefore treats regional labels as useful learning defaults rather than absolute rules. A future Family Map and Partner Mode will let learners specify what their actual family uses.
+- Northern and Southern Vietnamese tracks
+- one active speaking variety with recognition of the other
+- six high-value words or expressions
+- fixed useful phrases
+- a reusable response pattern
+- North/South comparison
+- three interactive comprehension checks
+- a final family scenario
+- progress stored locally in the browser
 
 ## Northern and Southern Vietnamese
 
-The course has two first-class tracks:
+The course treats both varieties as first-class tracks:
 
 - **Northern Vietnamese**, primarily Hanoi-oriented
 - **Southern Vietnamese**, primarily Saigon / Ho Chi Minh City-oriented
 
 The learner chooses one variety to actively speak while learning to recognise common alternatives from the other.
 
+Examples:
+
 | English | Northern | Southern |
 | --- | --- | --- |
 | Dad | bố | ba |
-| Bowl | bát | chén |
+| Bowl / dishes | bát | chén |
 | Spoon | thìa | muỗng |
-| Glass | cốc | ly |
-| Pig | lợn | heo |
+| We / us in this family context | bọn con | tụi con |
+| Polite acknowledgement | vâng ạ | dạ |
 
-The learning principle is:
+These are teaching defaults, not rigid claims about every Vietnamese household. Family, generation and region can all affect real usage.
 
-> **Speak one. Understand both.**
+## Audio strategy
 
-## Family-first Vietnamese
+Final audio is **not** being produced lesson by lesson.
 
-Vietnamese cannot be taught effectively as a simple English-style “I / you” system. Terms depend on generation, age, relationship, and context.
+Lesson 1 proved the technical model: one HN master recording and one SG master recording can contain many lesson cues, while the app seeks to the correct section when the learner taps a pronunciation button.
 
-A future core feature is therefore a **Family Map**.
+For Lessons 2 onward the interface currently shows **Audio queued**.
 
-Example:
+The production plan is:
 
-```text
-Partner's mother
+1. finish the full curriculum
+2. audit and lock all Northern and Southern wording
+3. generate a consolidated audio manifest
+4. deduplicate repeated vocabulary and phrases
+5. create HN and SG master production scripts
+6. generate the regional audio in one production session
+7. review pronunciation
+8. store approved master recordings in GitHub
+9. map every audio button to the correct cue
 
-You call her: mẹ / má, depending on the family
-You refer to yourself as: con, when that family relationship is appropriate
-```
+See `AUDIO_SETUP.md` for the current production strategy.
 
-The long-term goal is for lessons to adapt to the learner's real Vietnamese family instead of teaching one generic household.
-
-## Current project structure
+## Project structure
 
 ```text
 vietnamese-for-family/
-├── index.html      # website shell
-├── styles.css      # responsive visual design
-├── app.js          # Lesson 1 content and interactions
-└── README.md       # project documentation
+├── index.html
+├── styles.css
+├── course.css
+├── app.js
+├── course-data.js
+├── README.md
+├── AUDIO_SETUP.md
+└── audio/
+    ├── north/
+    └── south/
 ```
 
-Planned additions include:
-
-```text
-data/
-audio/
-├── north/
-└── south/
-images/
-```
-
-## Run the project
-
-Because V0.1 is a static web app, it can be hosted directly through GitHub Pages.
-
-For GitHub Pages:
-
-1. Open the repository on GitHub.
-2. Go to **Settings → Pages**.
-3. Under **Build and deployment**, select **Deploy from a branch**.
-4. Choose the `main` branch and `/ (root)` folder.
-5. Save.
-
-The expected public URL is:
-
-```text
-https://annnmm219.github.io/vietnamese-for-family/
-```
+`course-data.js` contains the authored course content. `app.js` is the reusable lesson engine. This separation makes Lessons 6–12 substantially easier to add and later allows the final audio manifest to be generated from the complete course data.
 
 ## Design principles
 
 1. **Family situations before generic tourist vocabulary.**
 2. **Speaking and listening before formal grammar study.**
 3. **One active dialect, two-dialect recognition.**
-4. **Natural Vietnamese instead of mechanically translated English.**
-5. **Relationship language taught through real relationships.**
+4. **Natural family Vietnamese instead of mechanical translation.**
+5. **Relationship terms taught inside actual relationships.**
 6. **Cultural meaning taught alongside literal meaning.**
 7. **Short interactive sessions rather than textbook chapters.**
-8. **No paid API secrets exposed in the public frontend.**
+8. **Do not produce final audio until wording is locked.**
 
 ## Planned course
 
-The broader program is envisioned as a 12-week family-focused course:
+The current roadmap remains a 12-lesson family-focused program. Lessons 1–5 are implemented; Lessons 6–12 will cover deeper small talk, natural listening, politeness, Tết and extended family, humour and indirect meaning, multi-speaker conversation, and a final weekend-with-the-family simulation.
 
-1. Meeting parents and grandparents
-2. Food and family meals
-3. Personal questions and the relative interrogation
-4. Work, relationships, plans, and polite answers
-5. Helping around the house
-6. Family small talk
-7. Understanding natural family speech
-8. Politeness particles and socially natural responses
-9. Tết and family gatherings
-10. Humour, affection, teasing, and indirect meaning
-11. Following conversations with multiple speakers
-12. Weekend-with-the-in-laws simulation
+## GitHub Pages
 
-## Long-term features
+The project is intended to run from GitHub Pages from the `main` branch.
 
-Potential later features include:
+Expected public URL:
 
-- personalised Family Map
-- relationship-status-aware forms of address
-- partner mode for confirming the family's preferred terms
-- native Northern and Southern recordings
-- custom family-member voice recordings
-- pronunciation feedback
-- spaced-repetition review
-- adaptive difficulty
-- AI conversation practice
-- multi-speaker family simulations
-- synced progress across devices
-- broader regional Vietnamese listening exposure
-
-These are roadmap items, not current V0.1 features.
-
-## Contributing and testing
-
-Feedback from Vietnamese speakers, Vietnamese learners, mixed-language couples, and people navigating Vietnamese family relationships is especially valuable.
-
-The first testing priority is not advanced grammar. It is whether **Lesson 1 sounds natural, teaches socially appropriate family language, and makes a complete beginner more comfortable entering a Vietnamese family conversation.**
+```text
+https://annnmm219.github.io/vietnamese-for-family/
+```
 
 ## License
 
-No open-source license has been selected yet.
-
-Unless a license is added later, the repository should not be assumed to grant permission to copy, modify, or redistribute its contents.
+No open-source license has been selected yet. Unless a license is added later, the repository should not be assumed to grant permission to copy, modify or redistribute its contents.
