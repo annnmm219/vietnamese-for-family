@@ -6,7 +6,7 @@
 
 ## Project status
 
-**V0.3: Lessons 1–5 are playable.**
+**V0.4: Lessons 1–5 are playable with a simplified interaction system.**
 
 The project is a lightweight static web app designed for GitHub Pages. It does not require an account or backend for the current course experience.
 
@@ -24,11 +24,23 @@ Each lesson includes:
 - one active speaking variety with recognition of the other
 - six high-value words or expressions
 - fixed useful phrases
-- a reusable response pattern
+- a tap-to-reveal reusable response pattern
 - North/South comparison
 - three interactive comprehension checks
 - a final family scenario
 - progress stored locally in the browser
+
+### V0.4 interaction and visual changes
+
+- one-font interface with a smaller, more consistent type scale
+- vocabulary cards show only essential information by default
+- vocabulary **Details** opens a modal with meaning, Northern form, Southern form and contextual guidance
+- reusable language patterns are collapsed until requested
+- answer feedback has clearer correct and retry states
+- cards have stronger hover and focus behavior
+- each lesson now has a stable scene/illustration slot ready for the visual V0.5 pass
+
+The scene slots are intentionally lightweight placeholders. Real illustrations and image-based exercises will be added only after the interaction structure is approved.
 
 ## Northern and Southern Vietnamese
 
@@ -100,11 +112,14 @@ vietnamese-for-family/
 5. **Relationship terms taught inside actual relationships.**
 6. **Cultural meaning taught alongside literal meaning.**
 7. **Short interactive sessions rather than textbook chapters.**
-8. **Do not produce final audio until wording is locked.**
+8. **Progressive disclosure: show essential information first, explanation on demand.**
+9. **Do not produce final audio until wording is locked.**
 
 ## Planned course
 
 The current roadmap remains a 12-lesson family-focused program. Lessons 1–5 are implemented; Lessons 6–12 will cover deeper small talk, natural listening, politeness, Tết and extended family, humour and indirect meaning, multi-speaker conversation, and a final weekend-with-the-family simulation.
+
+The next visual pass will add real lesson illustrations and additional interaction types such as sentence building and tappable scene objects.
 
 ## GitHub Pages
 
