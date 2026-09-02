@@ -2,88 +2,90 @@
 
 **An interactive Vietnamese course for people who want to communicate with their Vietnamese partner, in-laws, and extended family.**
 
-> Speak one dialect. Understand both.
+> Learn the Vietnamese your family speaks.
 
 ## Project status
 
-**V0.4: Lessons 1–5 are playable with a simplified interaction system.**
+**V0.5: the final 10-lesson course architecture is locked and the website has been realigned to it.**
 
-The project is a lightweight static web app designed for GitHub Pages. It does not require an account or backend for the current course experience.
+The app remains a lightweight static site designed for GitHub Pages. Northern and Southern Vietnamese are parallel learning tracks selected at the top of the site; they are not separate lessons.
 
-### Current lessons
+## Official 10-lesson course architecture
 
-1. **Meeting the Family** — greetings, parents, grandparents, family pronouns, first-door interaction
-2. **Food and Family Meals** — eating, compliments, accepting and declining more food, kitchen vocabulary
-3. **Questions from Relatives** — age, work, relationship duration, marriage questions, polite deflection
-4. **Work, Home and Plans** — simple small talk about work, where you live, likes and plans as a couple
-5. **Helping Around the House** — offering help, dishes, household requests and where things belong
+1. **Meeting the Family**  
+   Titles, kinship hierarchy, relational pronouns, and initial greetings.
 
-Each lesson includes:
+2. **Politeness & Natural Responses**  
+   Respectful markers such as `dạ` / `ạ`, sentence softeners, and natural family tone.
 
-- Northern and Southern Vietnamese tracks
-- one active speaking variety with recognition of the other
-- six high-value words or expressions
-- fixed useful phrases
-- a tap-to-reveal reusable response pattern
-- North/South comparison
-- three interactive comprehension checks
-- a final family scenario
-- progress stored locally in the browser
+3. **Food & Family Meals**  
+   Table invitations, dishes, compliments, and politely declining more food.
 
-### V0.4 interaction and visual changes
+4. **Helping Around the House**  
+   Household objects, chores, simple requests, and offering assistance.
 
-- one-font interface with a smaller, more consistent type scale
-- vocabulary cards show only essential information by default
-- vocabulary **Details** opens a modal with meaning, Northern form, Southern form and contextual guidance
-- reusable language patterns are collapsed until requested
-- answer feedback has clearer correct and retry states
-- cards have stronger hover and focus behavior
-- each lesson now has a stable scene/illustration slot ready for the visual V0.5 pass
+5. **Questions from Relatives**  
+   Age, career, salary, relationships, children, appearance, and graceful non-answers.
 
-The scene slots are intentionally lightweight placeholders. Real illustrations and image-based exercises will be added only after the interaction structure is approved.
+6. **Work, Home & Plans**  
+   Describing work, living situation, interests, and future plans simply.
 
-## Northern and Southern Vietnamese
+7. **Everyday Family Small Talk**  
+   Health, weather, routines, check-ins, and conversational fillers.
 
-The course treats both varieties as first-class tracks:
+8. **Understanding Natural, Fast Vietnamese**  
+   Connected and reduced speech, sentence rhythm, contextual omissions, and fast family dialogue.
+
+9. **Tết & Family Visits**  
+   Seasonal wishes, visiting etiquette, lì xì, altar etiquette, and host/guest dynamics.
+
+10. **Surviving a Family Gathering**  
+    Capstone simulation integrating greetings, dining, questions, teasing, toasting, multi-speaker chatter, and leaving politely.
+
+## Current build status
+
+Playable authored lessons:
+
+- Lesson 1: Meeting the Family
+- Lesson 3: Food & Family Meals
+- Lesson 4: Helping Around the House
+- Lesson 5: Questions from Relatives
+- Lesson 6: Work, Home & Plans
+
+Locked but still to be authored:
+
+- Lesson 2: Politeness & Natural Responses
+- Lesson 7: Everyday Family Small Talk
+- Lesson 8: Understanding Natural, Fast Vietnamese
+- Lesson 9: Tết & Family Visits
+- Lesson 10: Surviving a Family Gathering
+
+The website shows all ten lesson positions so the final learning sequence remains visible while content is developed.
+
+## Regional track strategy
+
+The learner selects either:
 
 - **Northern Vietnamese**, primarily Hanoi-oriented
 - **Southern Vietnamese**, primarily Saigon / Ho Chi Minh City-oriented
 
-The learner chooses one variety to actively speak while learning to recognise common alternatives from the other.
-
-Examples:
-
-| English | Northern | Southern |
-| --- | --- | --- |
-| Dad | bố | ba |
-| Bowl / dishes | bát | chén |
-| Spoon | thìa | muỗng |
-| We / us in this family context | bọn con | tụi con |
-| Polite acknowledgement | vâng ạ | dạ |
-
-These are teaching defaults, not rigid claims about every Vietnamese household. Family, generation and region can all affect real usage.
+Once a track is selected, the lesson teaches that track. The learner is not forced to study the other region's vocabulary inside the lesson.
 
 ## Audio strategy
 
-Final audio is **not** being produced lesson by lesson.
+Final audio is not being produced lesson by lesson.
 
-Lesson 1 proved the technical model: one HN master recording and one SG master recording can contain many lesson cues, while the app seeks to the correct section when the learner taps a pronunciation button.
+Lesson 1 proved the technical model using one HN master recording and one SG master recording with timed cues. After all ten lessons are authored and wording is locked, the project will:
 
-For Lessons 2 onward the interface currently shows **Audio queued**.
+1. extract all required spoken material
+2. deduplicate repeated vocabulary and phrases
+3. create final HN and SG master production scripts
+4. generate the audio in one production session
+5. review pronunciation
+6. store approved recordings in GitHub
+7. map the lesson buttons to the correct audio cues
 
-The production plan is:
-
-1. finish the full curriculum
-2. audit and lock all Northern and Southern wording
-3. generate a consolidated audio manifest
-4. deduplicate repeated vocabulary and phrases
-5. create HN and SG master production scripts
-6. generate the regional audio in one production session
-7. review pronunciation
-8. store approved master recordings in GitHub
-9. map every audio button to the correct cue
-
-See `AUDIO_SETUP.md` for the current production strategy.
+See `AUDIO_SETUP.md` for the current audio approach.
 
 ## Project structure
 
@@ -101,29 +103,22 @@ vietnamese-for-family/
     └── south/
 ```
 
-`course-data.js` contains the authored course content. `app.js` is the reusable lesson engine. This separation makes Lessons 6–12 substantially easier to add and later allows the final audio manifest to be generated from the complete course data.
+`course-data.js` is the authored curriculum source. `app.js` is the reusable lesson engine.
 
 ## Design principles
 
-1. **Family situations before generic tourist vocabulary.**
-2. **Speaking and listening before formal grammar study.**
-3. **One active dialect, two-dialect recognition.**
-4. **Natural family Vietnamese instead of mechanical translation.**
-5. **Relationship terms taught inside actual relationships.**
-6. **Cultural meaning taught alongside literal meaning.**
-7. **Short interactive sessions rather than textbook chapters.**
-8. **Progressive disclosure: show essential information first, explanation on demand.**
-9. **Do not produce final audio until wording is locked.**
-
-## Planned course
-
-The current roadmap remains a 12-lesson family-focused program. Lessons 1–5 are implemented; Lessons 6–12 will cover deeper small talk, natural listening, politeness, Tết and extended family, humour and indirect meaning, multi-speaker conversation, and a final weekend-with-the-family simulation.
-
-The next visual pass will add real lesson illustrations and additional interaction types such as sentence building and tappable scene objects.
+1. Family situations before tourist vocabulary.
+2. One selected regional track at a time.
+3. Speaking and listening before formal grammar terminology.
+4. Natural family Vietnamese rather than mechanical English translation.
+5. Relationship terms taught inside actual relationships.
+6. Cultural meaning taught alongside literal meaning.
+7. Short interactive sessions rather than textbook chapters.
+8. Final audio only after wording is locked.
+9. Lesson 8 becomes listening-heavy rather than vocabulary-heavy.
+10. Lesson 10 is a capstone simulation, not another vocabulary chapter.
 
 ## GitHub Pages
-
-The project is intended to run from GitHub Pages from the `main` branch.
 
 Expected public URL:
 
