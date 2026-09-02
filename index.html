@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#8e2f3f" />
+  <title>Vietnamese for Family · Lesson 1</title>
+  <meta name="description" content="Interactive Vietnamese for partners and in-laws, with Northern and Southern Vietnamese." />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Vietnamese for Family home">
+      <span class="brand-mark" aria-hidden="true">V</span>
+      <span>
+        <strong>Vietnamese for Family</strong>
+        <small>Speak one dialect. Understand both.</small>
+      </span>
+    </a>
+    <div class="lesson-badge">Lesson 1 · Meeting the Family</div>
+  </header>
+
+  <main id="top">
+    <section class="hero page-shell">
+      <div class="hero-copy">
+        <p class="eyebrow">Your first family visit</p>
+        <h1>Walk in, greet everyone correctly, and know what to say back.</h1>
+        <p class="hero-text">This lesson teaches the family words and greetings that matter before grammar terminology. Choose the Vietnamese you want to speak. You will still learn to recognise the other variety.</p>
+      </div>
+
+      <aside class="dialect-panel" aria-label="Dialect settings">
+        <p class="setting-label">I want to speak</p>
+        <div class="segmented" role="group" aria-label="Primary dialect">
+          <button class="dialect-button" type="button" data-dialect="north">Northern</button>
+          <button class="dialect-button" type="button" data-dialect="south">Southern</button>
+        </div>
+        <p id="dialect-summary" class="setting-summary"></p>
+      </aside>
+    </section>
+
+    <section class="page-shell status-strip" aria-label="Lesson status">
+      <div>
+        <span class="status-label">Progress</span>
+        <strong id="progress-text">0%</strong>
+      </div>
+      <div class="progress-track" aria-hidden="true">
+        <span id="progress-bar"></span>
+      </div>
+      <button id="reset-progress" class="text-button" type="button">Reset lesson</button>
+    </section>
+
+    <section class="page-shell audio-note" aria-label="Audio information">
+      <span aria-hidden="true">🔊</span>
+      <p><strong>Prototype audio:</strong> the lesson uses the Vietnamese voice installed on your device. Regional wording changes between North and South, but the device voice may not reproduce a true regional accent yet. Native recordings can replace this later without changing the lesson design.</p>
+    </section>
+
+    <div id="lesson-root" class="page-shell lesson-stack"></div>
+  </main>
+
+  <footer class="site-footer page-shell">
+    <p>Vietnamese for Family · V0.1</p>
+    <p>Built for real conversations with the people your partner loves.</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
