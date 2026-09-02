@@ -4,62 +4,93 @@
 
 > Speak one dialect. Understand both.
 
+## Project status
+
+**V0.1 is now playable.**
+
+The first lesson, **Lesson 1: Meeting the Family**, is implemented as a lightweight static web app. It is designed to run directly on GitHub Pages without a backend or account system.
+
+### What works in V0.1
+
+- Northern and Southern Vietnamese speaking modes
+- one active dialect with recognition of the other
+- family-first vocabulary
+- clickable Vietnamese speech playback
+- normal and slow playback
+- personalised practice sentence using the learner's name
+- North/South vocabulary comparison
+- three interactive comprehension questions
+- a short front-door family scenario
+- lesson progress saved locally in the browser
+- responsive layout for desktop and mobile
+
+### Audio in V0.1
+
+V0.1 uses the browser's built-in Vietnamese speech synthesis so the pronunciation buttons work without an API key or backend.
+
+This is intentionally a prototype layer. The wording changes appropriately between the Northern and Southern tracks where relevant, but the actual voice and regional accent depend on the learner's device.
+
+The planned production approach is to replace important speech with reviewed recordings from native Northern and Southern Vietnamese speakers, or reviewed pre-generated audio files stored in the repository.
+
 ## Why this project exists
 
-Most beginner Vietnamese courses are designed around general vocabulary, travel situations, or formal language study.
+Most beginner Vietnamese courses focus on general vocabulary, travel situations, or formal language study. Someone dating, engaged to, or married to a Vietnamese person often has a much narrower and more immediate problem:
 
-But someone dating, engaged to, or married to a Vietnamese person often has a much more specific goal:
+**“I want to understand my partner's family and speak to them without asking my partner to translate everything.”**
 
-**“I want to understand my partner’s family and be able to speak to them without asking my partner to translate everything.”**
+Vietnamese for Family starts there.
 
-Vietnamese for Family is being designed around that problem.
-
-Instead of starting with abstract grammar chapters, the course focuses on real family situations such as:
+The course is designed around situations such as:
 
 - meeting parents and grandparents
-- using Vietnamese family pronouns correctly
+- using Vietnamese relationship terms correctly
 - eating with the family
 - helping around the house
 - answering questions from relatives
-- making everyday small talk
+- everyday small talk
 - visiting extended family
-- understanding Vietnamese politeness
-- participating in Tết
-- following conversations between several relatives
+- Vietnamese politeness
+- Tết and family gatherings
+- following conversations involving several relatives
 
-## Project status
+## Lesson 1: Meeting the Family
 
-**Early development / MVP planning.**
+The first lesson teaches the minimum language needed to arrive at a family home and interact respectfully.
 
-The repository currently contains the project definition. The first playable version will focus on one polished introductory lesson before the full curriculum is expanded.
+It currently covers:
 
-### Initial MVP target
+### Family terms
 
-**Lesson 1: Meeting the Family**
+- mẹ
+- bố / ba
+- con
+- ông
+- bà
+- vâng ạ / dạ
 
-Planned MVP capabilities:
+### Core greetings
 
-- mobile-friendly web interface
-- Northern and Southern Vietnamese modes
-- a primary-dialect selection during onboarding
-- recognition of vocabulary from the other dialect
-- clickable pronunciation audio
-- vocabulary cards
-- listening exercises
-- multiple-choice comprehension exercises
-- short family conversation scenarios
-- local progress storage without requiring an account
+Examples adapt to the learner's selected dialect, including forms such as:
+
+```text
+Con chào mẹ ạ.
+Con chào bố ạ.
+Con chào ba.
+Cháu chào ông bà ạ.
+Con rất vui được gặp bố mẹ ạ.
+Con rất vui được gặp ba mẹ.
+```
+
+Vietnamese family language varies by household, region, age, and relationship status. The course therefore treats regional labels as useful learning defaults rather than absolute rules. A future Family Map and Partner Mode will let learners specify what their actual family uses.
 
 ## Northern and Southern Vietnamese
 
-The course is designed with two first-class dialect tracks:
+The course has two first-class tracks:
 
 - **Northern Vietnamese**, primarily Hanoi-oriented
 - **Southern Vietnamese**, primarily Saigon / Ho Chi Minh City-oriented
 
-Learners choose one dialect to actively speak, while gradually learning to recognise the other.
-
-For example:
+The learner chooses one variety to actively speak while learning to recognise common alternatives from the other.
 
 | English | Northern | Southern |
 | --- | --- | --- |
@@ -69,163 +100,60 @@ For example:
 | Glass | cốc | ly |
 | Pig | lợn | heo |
 
-The objective is not to force beginners to speak two dialects at once.
-
 The learning principle is:
 
 > **Speak one. Understand both.**
 
 ## Family-first Vietnamese
 
-Vietnamese family language cannot be taught effectively as a simple English-style “I / you” system.
-
-How a learner refers to themselves and another person depends on age, generation, relationship, and family context.
+Vietnamese cannot be taught effectively as a simple English-style “I / you” system. Terms depend on generation, age, relationship, and context.
 
 A future core feature is therefore a **Family Map**.
-
-The learner will be able to define important relatives and see the appropriate terms of address for each relationship.
 
 Example:
 
 ```text
 Partner's mother
 
-You call her: mẹ / má
-You refer to yourself as: con
-
-Con chào mẹ ạ.
-Con cảm ơn mẹ.
-Để con giúp.
+You call her: mẹ / má, depending on the family
+You refer to yourself as: con, when that family relationship is appropriate
 ```
 
-This relationship system is intended to become part of lessons and conversation simulations rather than existing only as a vocabulary reference.
+The long-term goal is for lessons to adapt to the learner's real Vietnamese family instead of teaching one generic household.
 
-## Audio and pronunciation
-
-Pronunciation is central to the project because Vietnamese is tonal and regional pronunciation differs substantially.
-
-The planned interface allows a learner to tap a word, expression, or sentence to hear it pronounced.
-
-Example:
-
-```text
-Con ăn cơm chưa?
-
-🔊 North
-🔊 South
-```
-
-The project is designed to support stored audio files such as:
-
-```text
-audio/
-├── north/
-│   ├── greetings/
-│   └── lesson-01/
-└── south/
-    ├── greetings/
-    └── lesson-01/
-```
-
-During development, reviewed text-to-speech audio may be used for rapid prototyping. Important course material can later be replaced with recordings from native Northern and Southern Vietnamese speakers.
-
-Pre-generated audio is preferred over exposing paid text-to-speech API credentials in a public browser application.
-
-## Planned learning structure
-
-The full course is currently envisioned as a 12-week family-focused program.
-
-### Phase 1: Meeting the family
-
-1. Meeting parents and grandparents
-2. Food and family meals
-
-### Phase 2: Family questions
-
-3. Personal questions and the “relative interrogation”
-4. Work, relationships, plans, and polite answers
-
-### Phase 3: Everyday family life
-
-5. Helping around the house
-6. Family small talk
-
-### Phase 4: Listening and social Vietnamese
-
-7. Understanding natural family speech
-8. Politeness particles and socially natural responses
-
-### Phase 5: Culture and extended family
-
-9. Tết and family gatherings
-10. Humour, affection, teasing, and indirect meaning
-
-### Phase 6: Real conversation
-
-11. Following conversations with multiple speakers
-12. Weekend-with-the-in-laws simulation
-
-The exact curriculum will evolve through testing with Vietnamese speakers and learners.
-
-## Example lesson interaction
-
-A lesson should teach language inside a situation rather than presenting isolated grammar first.
-
-Example:
-
-```text
-Your partner's mother opens the door.
-
-🔊 Hai đứa mới tới hả?
-
-What does she mean?
-
-A. Are you hungry?
-B. Did you just arrive? ✓
-C. Where are you going?
-```
-
-A speaking exercise might then introduce:
-
-```text
-Con chào mẹ ạ.
-
-🔊 Hear it
-🐢 Hear it slowly
-🎤 Your turn
-```
-
-Grammar explanations should be available when useful, but conversation and comprehension remain the primary learning flow.
-
-## Planned project structure
+## Current project structure
 
 ```text
 vietnamese-for-family/
-├── index.html
-├── style.css
-├── app.js
-├── README.md
-├── data/
-│   ├── lessons.json
-│   ├── vocabulary.json
-│   └── family-relationships.json
-├── audio/
-│   ├── north/
-│   └── south/
-└── images/
+├── index.html      # website shell
+├── styles.css      # responsive visual design
+├── app.js          # Lesson 1 content and interactions
+└── README.md       # project documentation
 ```
 
-The first release is intended to remain a lightweight static web application that can run on GitHub Pages without requiring a backend.
+Planned additions include:
 
-## GitHub Pages
+```text
+data/
+audio/
+├── north/
+└── south/
+images/
+```
 
-The MVP is intended to be publishable through **GitHub Pages**.
+## Run the project
 
-Once the first website files are ready, the project can be deployed from the repository's `main` branch through:
+Because V0.1 is a static web app, it can be hosted directly through GitHub Pages.
 
-**Repository → Settings → Pages**
+For GitHub Pages:
 
-The expected public URL format is:
+1. Open the repository on GitHub.
+2. Go to **Settings → Pages**.
+3. Under **Build and deployment**, select **Deploy from a branch**.
+4. Choose the `main` branch and `/ (root)` folder.
+5. Save.
+
+The expected public URL is:
 
 ```text
 https://annnmm219.github.io/vietnamese-for-family/
@@ -237,32 +165,52 @@ https://annnmm219.github.io/vietnamese-for-family/
 2. **Speaking and listening before formal grammar study.**
 3. **One active dialect, two-dialect recognition.**
 4. **Natural Vietnamese instead of mechanically translated English.**
-5. **Relationship terms taught through actual family relationships.**
+5. **Relationship language taught through real relationships.**
 6. **Cultural meaning taught alongside literal meaning.**
-7. **Short, interactive sessions rather than long textbook lessons.**
-8. **No API secrets exposed in the public frontend.**
+7. **Short interactive sessions rather than textbook chapters.**
+8. **No paid API secrets exposed in the public frontend.**
 
-## Long-term ideas
+## Planned course
+
+The broader program is envisioned as a 12-week family-focused course:
+
+1. Meeting parents and grandparents
+2. Food and family meals
+3. Personal questions and the relative interrogation
+4. Work, relationships, plans, and polite answers
+5. Helping around the house
+6. Family small talk
+7. Understanding natural family speech
+8. Politeness particles and socially natural responses
+9. Tết and family gatherings
+10. Humour, affection, teasing, and indirect meaning
+11. Following conversations with multiple speakers
+12. Weekend-with-the-in-laws simulation
+
+## Long-term features
 
 Potential later features include:
 
 - personalised Family Map
-- custom vocabulary based on the learner's real family
-- partner mode for correcting preferred family terms
-- family-member voice recordings
+- relationship-status-aware forms of address
+- partner mode for confirming the family's preferred terms
+- native Northern and Southern recordings
+- custom family-member voice recordings
 - pronunciation feedback
 - spaced-repetition review
 - adaptive difficulty
 - AI conversation practice
 - multi-speaker family simulations
 - synced progress across devices
-- additional regional Vietnamese listening exposure
+- broader regional Vietnamese listening exposure
 
-These are future ideas, not current features.
+These are roadmap items, not current V0.1 features.
 
-## Contributing
+## Contributing and testing
 
-The project is currently in early development. Feedback from Vietnamese speakers, Vietnamese learners, mixed-language couples, and people navigating Vietnamese family relationships will be especially valuable as the course develops.
+Feedback from Vietnamese speakers, Vietnamese learners, mixed-language couples, and people navigating Vietnamese family relationships is especially valuable.
+
+The first testing priority is not advanced grammar. It is whether **Lesson 1 sounds natural, teaches socially appropriate family language, and makes a complete beginner more comfortable entering a Vietnamese family conversation.**
 
 ## License
 
