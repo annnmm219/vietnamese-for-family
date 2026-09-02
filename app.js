@@ -11,6 +11,14 @@ const state = {
   currentLesson: Number(localStorage.getItem(STORAGE_KEYS.currentLesson) || 1)
 };
 
+const LESSON_SCENES = {
+  1: { icon: "🏠", title: "Arriving at the family home", copy: "Scene slot for the front-door illustration in the next visual pass." },
+  2: { icon: "🍲", title: "Family dinner", copy: "Scene slot for the meal-table illustration and future tappable food objects." },
+  3: { icon: "💬", title: "Questions from relatives", copy: "Scene slot for the extended-family conversation illustration." },
+  4: { icon: "💼", title: "Talking about work and plans", copy: "Scene slot for work, home and tomorrow-plan conversation cues." },
+  5: { icon: "🧽", title: "Helping around the house", copy: "Scene slot for the kitchen and household-help illustration." }
+};
+
 const AUDIO_MASTERS = {
   north: "audio/north/lesson-01/master.mp3",
   south: "audio/south/lesson-01/master.mp3"
@@ -56,6 +64,14 @@ const dialectSummary = document.getElementById("dialect-summary");
 const audioNote = document.getElementById("audio-note");
 const audioStatus = document.getElementById("audio-status");
 const resetButton = document.getElementById("reset-progress");
+
+const vocabDialog = document.getElementById("vocab-dialog");
+const vocabDialogClose = document.getElementById("vocab-dialog-close");
+const vocabDialogTitle = document.getElementById("vocab-dialog-title");
+const vocabDialogMeaning = document.getElementById("vocab-dialog-meaning");
+const vocabDialogNorth = document.getElementById("vocab-dialog-north");
+const vocabDialogSouth = document.getElementById("vocab-dialog-south");
+const vocabDialogNote = document.getElementById("vocab-dialog-note");
 
 function esc(value) {
   return String(value ?? "")
@@ -218,45 +234,79 @@ function renderStatus() {
   }
 }
 
+function renderLessonVisual(lesson) {
+  const scene = LESSON_SCENES[lesson.id] || { icon: "💬", title: lesson.title, copy: "Illustration slot reserved for the next visual pass." };
+  return `<section class="lesson-visual" aria-label="${esc(scene.title)}">
+    <div class="lesson-visual-icon" aria-hidden="true">${scene.icon}</div>
+    <div class="lesson-visual-copy">
+      <span>Scene preview</span>
+      <strong>${esc(scene.title)}</strong>
+      <p>${esc(scene.copy)}</p>
+    </div>
+  </section>`;
+}
+
 function renderVocabulary(lesson) {
   const cards = lesson.vocabulary.map(item => {
     const word = item[state.dialect];
     const other = item[otherDialect(state.dialect)];
-    const note = state.dialect === "north" ? item.noteNorth : item.noteSouth;
     const differs = word !== other;
+    const cue = differs
+      ? `${dialectLabel(otherDialect(state.dialect))}: <strong>${esc(other)}</strong>`
+      : "Same word in both tracks";
 
     return `<article class="vocab-card">
       <div class="vocab-top">
-        <div><h3 class="vocab-word">${esc(word)}</h3><p class="vocab-meaning">${esc(item.meaning)}</p></div>
+        <div>
+          <h3 class="vocab-word">${esc(word)}</h3>
+          <p class="vocab-meaning">${esc(item.meaning)}</p>
+        </div>
         ${audioControl(lesson, `vocab-${item.id}`)}
       </div>
-      <p class="vocab-note">${esc(note)}${differs ? ` <strong>${dialectLabel(otherDialect(state.dialect))}:</strong> ${esc(other)}.` : ""}</p>
+      <div class="vocab-card-footer">
+        <span class="regional-cue">${cue}</span>
+        <button class="vocab-detail-button" type="button" data-vocab-id="${esc(item.id)}">Details</button>
+      </div>
     </article>`;
   }).join("");
 
   return `<section class="lesson-section">
-    <div class="section-head"><p class="section-kicker">Part 1 · Core language</p><h2>Words you will actually hear.</h2><p>Learn the active form for your track, but notice the regional alternative whenever it changes.</p></div>
+    <div class="section-head">
+      <p class="section-kicker">Part 1 · Core language</p>
+      <h2>Words you will actually hear.</h2>
+      <p>Keep the card simple. Tap Details when you want the family or regional explanation.</p>
+    </div>
     <div class="section-body"><div class="vocab-grid">${cards}</div></div>
   </section>`;
 }
 
 function renderPhrases(lesson) {
   const cards = lesson.phrases.map(item => `<article class="phrase-card">
-    <div><p class="phrase-vietnamese">${esc(item[state.dialect])}</p><p class="phrase-english">${esc(item.english)}</p></div>
+    <div>
+      <p class="phrase-vietnamese">${esc(item[state.dialect])}</p>
+      <p class="phrase-english">${esc(item.english)}</p>
+    </div>
     ${audioControl(lesson, `phrase-${item.id}`, true)}
   </article>`).join("");
 
   const pattern = lesson.pattern;
   return `<section class="lesson-section">
-    <div class="section-head"><p class="section-kicker">Part 2 · Useful lines</p><h2>Say something useful, not something textbook-perfect.</h2><p>These are deliberately short. The goal is to keep a family conversation moving.</p></div>
+    <div class="section-head">
+      <p class="section-kicker">Part 2 · Useful lines</p>
+      <h2>Say something useful, not something textbook-perfect.</h2>
+      <p>Short lines first. Open the reusable pattern only when you want to build your own sentence.</p>
+    </div>
     <div class="section-body">
       <div class="phrase-list">${cards}</div>
-      <div class="pattern-card">
-        <span class="pattern-label">${esc(pattern.label)}</span>
-        <p class="pattern-vietnamese">${esc(pattern[state.dialect])}</p>
-        <p class="pattern-english">${esc(pattern.english)}</p>
-        <small>Pattern card: personalise the part in brackets or ellipses.</small>
-      </div>
+      <details class="pattern-card">
+        <summary>Try a reusable pattern</summary>
+        <div class="pattern-body">
+          <span class="pattern-label">${esc(pattern.label)}</span>
+          <p class="pattern-vietnamese">${esc(pattern[state.dialect])}</p>
+          <p class="pattern-english">${esc(pattern.english)}</p>
+          <small>Personalise the part in brackets or ellipses.</small>
+        </div>
+      </details>
     </div>
   </section>`;
 }
@@ -270,7 +320,11 @@ function renderComparison(lesson) {
   </div>`).join("");
 
   return `<section class="lesson-section">
-    <div class="section-head"><p class="section-kicker">Part 3 · North + South</p><h2>Speak one. Recognise both.</h2><p>Your active track is highlighted. Recognition matters because real families mix regions, generations and habits.</p></div>
+    <div class="section-head">
+      <p class="section-kicker">Part 3 · North + South</p>
+      <h2>Speak one. Recognise both.</h2>
+      <p>Your active track is highlighted. Recognition matters because real families mix regions, generations and habits.</p>
+    </div>
     <div class="section-body"><div class="comparison-table">${rows}</div></div>
   </section>`;
 }
@@ -286,12 +340,16 @@ function renderQuiz(lesson) {
       <span class="quiz-number">Question ${index + 1}</span>
       <p class="quiz-question">${esc(quiz.question)}</p>
       <div class="answer-grid">${options}</div>
-      <p class="feedback ${done ? "success" : ""}">${done ? esc(quiz.explanation) : ""}</p>
+      <p class="feedback ${done ? "success" : ""}">${done ? `✓ Correct. ${esc(quiz.explanation)}` : ""}</p>
     </article>`;
   }).join("");
 
   return `<section class="lesson-section">
-    <div class="section-head"><p class="section-kicker">Part 4 · Check yourself</p><h2>Understand the situation, not every word.</h2><p>Wrong answers stay useful: they show where literal translation would lead you astray.</p></div>
+    <div class="section-head">
+      <p class="section-kicker">Part 4 · Check yourself</p>
+      <h2>Understand the situation, not every word.</h2>
+      <p>Feedback now tells you immediately whether the issue is language, relationship or tone.</p>
+    </div>
     <div class="section-body"><div class="quiz-list">${cards}</div></div>
   </section>`;
 }
@@ -304,7 +362,11 @@ function renderScenario(lesson) {
   const answers = scenario.answers.map(answer => `<button class="answer-button ${done && answer.correct ? "correct" : ""}" type="button" data-scenario-answer data-correct="${answer.correct}" ${done ? "disabled" : ""}>${esc(answerText(answer))}</button>`).join("");
 
   return `<section class="lesson-section">
-    <div class="section-head"><p class="section-kicker">Final practice · Family scenario</p><h2>Respond without asking your partner to rescue you.</h2><p>Read the situation first. Then choose the response that keeps the interaction natural.</p></div>
+    <div class="section-head">
+      <p class="section-kicker">Final practice · Family scenario</p>
+      <h2>Respond without asking your partner to rescue you.</h2>
+      <p>Read the situation first. Then choose the response that keeps the interaction natural.</p>
+    </div>
     <div class="section-body"><div class="scenario" data-scenario-card>
       <div class="scenario-scene">
         <span class="scenario-speaker">${esc(scenario.speaker)}</span>
@@ -315,7 +377,7 @@ function renderScenario(lesson) {
       <div class="scenario-actions">
         <p><strong>What do you say back?</strong></p>
         ${answers}
-        <p class="feedback ${done ? "success" : ""}" data-scenario-feedback>${done ? esc(scenario.success) : ""}</p>
+        <p class="feedback ${done ? "success" : ""}" data-scenario-feedback>${done ? `✓ Good choice. ${esc(scenario.success)}` : ""}</p>
         ${done && lesson.audioReady ? audioControl(lesson, "scenario-reply", true) : ""}
       </div>
     </div></div>
@@ -346,6 +408,7 @@ function renderLesson() {
   renderStatus();
 
   lessonRoot.innerHTML = [
+    renderLessonVisual(lesson),
     renderVocabulary(lesson),
     renderPhrases(lesson),
     renderComparison(lesson),
@@ -367,10 +430,25 @@ function switchLesson(lessonId) {
   const lesson = LESSONS.find(item => item.id === lessonId);
   if (!lesson) return;
   stopActiveAudio();
+  if (vocabDialog?.open) vocabDialog.close();
   state.currentLesson = lessonId;
   localStorage.setItem(STORAGE_KEYS.currentLesson, String(lessonId));
   renderLesson();
   document.getElementById("top").scrollIntoView({ behavior: "smooth" });
+}
+
+function openVocabDetails(vocabId) {
+  const lesson = currentLesson();
+  const item = lesson.vocabulary.find(vocab => vocab.id === vocabId);
+  if (!item || !vocabDialog) return;
+
+  const note = state.dialect === "north" ? item.noteNorth : item.noteSouth;
+  vocabDialogTitle.textContent = item[state.dialect];
+  vocabDialogMeaning.textContent = item.meaning;
+  vocabDialogNorth.textContent = item.north;
+  vocabDialogSouth.textContent = item.south;
+  vocabDialogNote.textContent = `${dialectLabel(state.dialect)} track: ${note}`;
+  vocabDialog.showModal();
 }
 
 document.addEventListener("click", event => {
@@ -383,9 +461,16 @@ document.addEventListener("click", event => {
   const dialectButton = event.target.closest(".dialect-button");
   if (dialectButton) {
     stopActiveAudio();
+    if (vocabDialog?.open) vocabDialog.close();
     state.dialect = dialectButton.dataset.dialect;
     localStorage.setItem(STORAGE_KEYS.dialect, state.dialect);
     renderLesson();
+    return;
+  }
+
+  const vocabButton = event.target.closest("[data-vocab-id]");
+  if (vocabButton) {
+    openVocabDetails(vocabButton.dataset.vocabId);
     return;
   }
 
@@ -407,7 +492,9 @@ document.addEventListener("click", event => {
     } else {
       quizButton.classList.add("wrong");
       quizButton.disabled = true;
-      feedback.textContent = "Not this one. Try again and focus on the relationship and situation rather than literal word-for-word translation.";
+      feedback.textContent = "↺ Try again. The problem is the relationship or tone, not just the literal words.";
+      feedback.classList.remove("success");
+      feedback.classList.add("error");
     }
     return;
   }
@@ -420,9 +507,16 @@ document.addEventListener("click", event => {
     } else {
       scenarioButton.classList.add("wrong");
       scenarioButton.disabled = true;
-      feedback.textContent = "Understandable, but not the natural family response this lesson is practising. Try again.";
+      feedback.textContent = "↺ Try again. Understandable, but this response is not the natural family choice the lesson is practising.";
+      feedback.classList.remove("success");
+      feedback.classList.add("error");
     }
   }
+});
+
+vocabDialogClose?.addEventListener("click", () => vocabDialog.close());
+vocabDialog?.addEventListener("click", event => {
+  if (event.target === vocabDialog) vocabDialog.close();
 });
 
 resetButton.addEventListener("click", () => {
