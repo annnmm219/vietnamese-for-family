@@ -2,8 +2,8 @@ const LESSONS = window.COURSE_LESSONS || [];
 
 const STORAGE_KEYS = {
   dialect: "vff-primary-dialect",
-  currentLesson: "vff-current-lesson",
-  progressPrefix: "vff-progress-lesson-"
+  currentLesson: "vff-v2-current-lesson",
+  progressPrefix: "vff-v2-progress-lesson-"
 };
 
 const state = {
@@ -18,34 +18,18 @@ const AUDIO_MASTERS = {
 
 const AUDIO_CUES = {
   north: {
-    "vocab-mom": [0.00, 0.38],
-    "vocab-dad": [0.86, 1.47],
-    "vocab-self-child": [1.89, 2.35],
-    "vocab-grandfather": [2.79, 3.40],
-    "vocab-grandmother": [3.81, 4.23],
-    "vocab-polite-yes": [4.80, 5.31],
-    "phrase-hello-mom": [5.72, 6.66],
-    "phrase-hello-dad": [7.46, 8.37],
-    "phrase-hello-grandparents": [9.14, 10.21],
-    "phrase-nice-to-meet": [11.02, 12.55],
-    "scenario": [15.63, 16.72],
-    "scenario-reply": [17.57, 19.22],
-    "final": [19.99, 21.04]
+    "vocab-mom": [0.00, 0.38], "vocab-dad": [0.86, 1.47], "vocab-self-child": [1.89, 2.35],
+    "vocab-grandfather": [2.79, 3.40], "vocab-grandmother": [3.81, 4.23], "vocab-polite-yes": [4.80, 5.31],
+    "phrase-hello-mom": [5.72, 6.66], "phrase-hello-dad": [7.46, 8.37], "phrase-hello-grandparents": [9.14, 10.21],
+    "phrase-nice-to-meet": [11.02, 12.55], "scenario": [15.63, 16.72],
+    "scenario-reply": [17.57, 19.22], "final": [19.99, 21.04]
   },
   south: {
-    "vocab-mom": [0.00, 0.36],
-    "vocab-dad": [0.69, 1.04],
-    "vocab-self-child": [1.37, 1.72],
-    "vocab-grandfather": [2.03, 2.35],
-    "vocab-grandmother": [2.70, 3.09],
-    "vocab-polite-yes": [3.45, 3.87],
-    "phrase-hello-mom": [4.25, 5.61],
-    "phrase-hello-dad": [6.39, 7.74],
-    "phrase-hello-grandparents": [8.53, 10.13],
-    "phrase-nice-to-meet": [10.90, 13.06],
-    "scenario": [14.97, 16.04],
-    "scenario-reply": [16.81, 18.58],
-    "final": [19.33, 20.89]
+    "vocab-mom": [0.00, 0.36], "vocab-dad": [0.69, 1.04], "vocab-self-child": [1.37, 1.72],
+    "vocab-grandfather": [2.03, 2.35], "vocab-grandmother": [2.70, 3.09], "vocab-polite-yes": [3.45, 3.87],
+    "phrase-hello-mom": [4.25, 5.61], "phrase-hello-dad": [6.39, 7.74], "phrase-hello-grandparents": [8.53, 10.13],
+    "phrase-nice-to-meet": [10.90, 13.06], "scenario": [14.97, 16.04],
+    "scenario-reply": [16.81, 18.58], "final": [19.33, 20.89]
   }
 };
 
@@ -90,6 +74,10 @@ function currentLesson() {
   return LESSONS.find(lesson => lesson.id === state.currentLesson) || LESSONS[0];
 }
 
+function isReady(lesson) {
+  return lesson.status === "ready";
+}
+
 function progressKey(lessonId) {
   return `${STORAGE_KEYS.progressPrefix}${lessonId}`;
 }
@@ -107,17 +95,19 @@ function saveProgress(lessonId, progress) {
 }
 
 function checkpointsFor(lesson) {
+  if (!isReady(lesson)) return [];
   return [...lesson.quizzes.map(q => `quiz-${q.id}`), "scenario"];
 }
 
 function progressPercent(lesson) {
-  const progress = getProgress(lesson.id);
+  if (!isReady(lesson)) return 0;
   const checkpoints = checkpointsFor(lesson);
+  const progress = getProgress(lesson.id);
   return Math.round((checkpoints.filter(id => progress.has(id)).length / checkpoints.length) * 100);
 }
 
 function isLessonComplete(lesson) {
-  return progressPercent(lesson) === 100;
+  return isReady(lesson) && progressPercent(lesson) === 100;
 }
 
 function answerText(answer) {
@@ -180,7 +170,6 @@ function playLessonOneAudio(dialect, cueId, slow = false) {
 
 function audioControl(lesson, cueId, includeSlow = false) {
   if (!lesson.audioReady) return "";
-
   return `<div class="audio-actions">
     <button class="speak-button" type="button" data-audio-cue="${esc(cueId)}">🔊 Hear</button>
     ${includeSlow ? `<button class="slow-button" type="button" data-audio-cue="${esc(cueId)}" data-slow="true">Slow</button>` : ""}
@@ -191,13 +180,14 @@ function renderCourseNav() {
   courseNav.innerHTML = LESSONS.map(lesson => {
     const active = lesson.id === state.currentLesson;
     const complete = isLessonComplete(lesson);
-    const pct = progressPercent(lesson);
+    const planned = !isReady(lesson);
+    const meta = planned ? "Planned" : `${progressPercent(lesson)}% complete`;
 
-    return `<button type="button" class="lesson-tab ${active ? "active" : ""} ${complete ? "complete" : ""}" data-lesson-id="${lesson.id}" aria-current="${active ? "page" : "false"}">
+    return `<button type="button" class="lesson-tab ${active ? "active" : ""} ${complete ? "complete" : ""} ${planned ? "planned" : ""}" data-lesson-id="${lesson.id}" aria-current="${active ? "page" : "false"}">
       <span class="lesson-tab-number">${complete ? "✓" : lesson.id}</span>
       <span class="lesson-tab-copy">
         <strong>${esc(lesson.shortTitle)}</strong>
-        <small>${pct}% complete</small>
+        <small>${meta}</small>
       </span>
     </button>`;
   }).join("");
@@ -221,16 +211,53 @@ function renderHero() {
 
 function renderStatus() {
   const lesson = currentLesson();
+
+  if (!isReady(lesson)) {
+    progressText.textContent = "Planned";
+    progressBar.style.width = "0%";
+    resetButton.hidden = true;
+    audioNote.hidden = false;
+    setAudioStatus("Audio will be produced after this lesson's wording is built and locked.");
+    return;
+  }
+
+  resetButton.hidden = false;
   const pct = progressPercent(lesson);
   progressText.textContent = `${pct}%`;
   progressBar.style.width = `${pct}%`;
-
   audioNote.hidden = false;
+
   if (lesson.audioReady) {
     setAudioStatus(`Lesson 1 uses the ${dialectLabel(state.dialect)} regional recording when the master MP3 is present.`);
   } else {
     setAudioStatus(`Lesson ${lesson.id} audio will be produced after the full curriculum is locked.`);
   }
+}
+
+function renderPlannedLesson(lesson) {
+  return `<section class="lesson-section">
+    <div class="section-head">
+      <p class="section-kicker">Locked course position</p>
+      <h2>Lesson ${lesson.id}: ${esc(lesson.title)}</h2>
+      <p>This lesson's role in the final 10-lesson course is locked. The detailed phrase bank and drills have not been authored yet.</p>
+    </div>
+    <div class="section-body">
+      <div class="phrase-list">
+        <article class="phrase-card">
+          <div>
+            <p class="phrase-vietnamese">Core focus</p>
+            <p class="phrase-english">${esc(lesson.coreFocus)}</p>
+          </div>
+        </article>
+        <article class="phrase-card">
+          <div>
+            <p class="phrase-vietnamese">Learning goal</p>
+            <p class="phrase-english">${esc(lesson.goal)}</p>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>`;
 }
 
 function renderVocabulary(lesson) {
@@ -264,7 +291,6 @@ function renderPhrases(lesson) {
   </article>`).join("");
 
   const pattern = lesson.pattern;
-
   return `<section class="lesson-section">
     <div class="section-head">
       <p class="section-kicker">Part 2 · Useful lines</p>
@@ -288,7 +314,6 @@ function renderPhrases(lesson) {
 
 function renderQuiz(lesson) {
   const progress = getProgress(lesson.id);
-
   const cards = lesson.quizzes.map((quiz, index) => {
     const checkpoint = `quiz-${quiz.id}`;
     const done = progress.has(checkpoint);
@@ -366,6 +391,11 @@ function renderLesson() {
   renderHero();
   renderStatus();
 
+  if (!isReady(lesson)) {
+    lessonRoot.innerHTML = renderPlannedLesson(lesson);
+    return;
+  }
+
   lessonRoot.innerHTML = [
     renderVocabulary(lesson),
     renderPhrases(lesson),
@@ -377,6 +407,7 @@ function renderLesson() {
 
 function markComplete(checkpoint) {
   const lesson = currentLesson();
+  if (!isReady(lesson)) return;
   const progress = getProgress(lesson.id);
   progress.add(checkpoint);
   saveProgress(lesson.id, progress);
@@ -386,7 +417,6 @@ function markComplete(checkpoint) {
 function switchLesson(lessonId) {
   const lesson = LESSONS.find(item => item.id === lessonId);
   if (!lesson) return;
-
   stopActiveAudio();
   state.currentLesson = lessonId;
   localStorage.setItem(STORAGE_KEYS.currentLesson, String(lessonId));
@@ -428,7 +458,7 @@ document.addEventListener("click", event => {
     } else {
       quizButton.classList.add("wrong");
       quizButton.disabled = true;
-      feedback.textContent = "Try again. Think about the family relationship and tone.";
+      feedback.textContent = "↺ Try again. Focus on the relationship and tone, not just the literal words.";
       feedback.classList.remove("success");
       feedback.classList.add("error");
     }
@@ -438,13 +468,12 @@ document.addEventListener("click", event => {
   const scenarioButton = event.target.closest("[data-scenario-answer]");
   if (scenarioButton) {
     const feedback = scenarioButton.closest("[data-scenario-card]").querySelector("[data-scenario-feedback]");
-
     if (scenarioButton.dataset.correct === "true") {
       markComplete("scenario");
     } else {
       scenarioButton.classList.add("wrong");
       scenarioButton.disabled = true;
-      feedback.textContent = "Try again. This is understandable, but not the most natural family response.";
+      feedback.textContent = "↺ Try again. This response is understandable, but it is not the natural family choice this lesson is practising.";
       feedback.classList.remove("success");
       feedback.classList.add("error");
     }
@@ -452,12 +481,11 @@ document.addEventListener("click", event => {
 });
 
 resetButton.addEventListener("click", () => {
-  localStorage.removeItem(progressKey(currentLesson().id));
+  const lesson = currentLesson();
+  if (!isReady(lesson)) return;
+  localStorage.removeItem(progressKey(lesson.id));
   renderLesson();
 });
 
-if (!LESSONS.some(lesson => lesson.id === state.currentLesson)) {
-  state.currentLesson = 1;
-}
-
+if (!LESSONS.some(lesson => lesson.id === state.currentLesson)) state.currentLesson = 1;
 renderLesson();
