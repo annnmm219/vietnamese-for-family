@@ -1,0 +1,219 @@
+.capstone-brief,
+.capstone-scene {
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.capstone-brief {
+  padding: 24px 26px;
+}
+
+.capstone-brief h2 {
+  margin: 0 0 8px;
+  font-size: clamp(24px, 2.6vw, 31px);
+  font-weight: 600;
+  letter-spacing: -.018em;
+}
+
+.capstone-brief > p:last-of-type {
+  max-width: 760px;
+  margin-bottom: 16px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.capstone-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.capstone-skill {
+  padding: 7px 10px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.capstone-journey {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 7px;
+}
+
+.capstone-journey-step {
+  min-width: 0;
+  display: grid;
+  justify-items: center;
+  gap: 6px;
+  text-align: center;
+  color: var(--muted);
+}
+
+.capstone-journey-step > span {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.capstone-journey-step small {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 9px;
+}
+
+.capstone-journey-step.done > span {
+  border-color: var(--success);
+  background: var(--success);
+  color: white;
+}
+
+.capstone-journey-step.current > span {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: white;
+}
+
+.capstone-journey-step.current small {
+  color: var(--accent-dark);
+  font-weight: 600;
+}
+
+.capstone-scene {
+  overflow: hidden;
+}
+
+.capstone-scene-head {
+  padding: 20px 22px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.capstone-scene-head > span {
+  display: block;
+  margin-bottom: 5px;
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.capstone-scene-head h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.capstone-dialogue {
+  padding: 24px 22px;
+  background: linear-gradient(135deg, #f8e9e5, #fff6ec);
+}
+
+.capstone-line {
+  margin: 5px 0 8px;
+  font-size: 24px;
+  line-height: 1.35;
+  font-weight: 600;
+}
+
+.capstone-choice {
+  padding: 20px 22px 22px;
+}
+
+.capstone-question {
+  margin-bottom: 13px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.crowd-stack {
+  display: grid;
+  gap: 8px;
+  padding: 20px 22px;
+  background: #fffaf7;
+}
+
+.crowd-line {
+  display: grid;
+  grid-template-columns: 72px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 11px 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: white;
+}
+
+.crowd-line > span {
+  color: var(--accent);
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: .06em;
+}
+
+.crowd-line strong,
+.crowd-line small {
+  display: block;
+}
+
+.crowd-line strong {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.crowd-line small {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.capstone-final .capstone-dialogue {
+  background: linear-gradient(135deg, #f1ebe9, #fffaf5);
+}
+
+@media (max-width: 700px) {
+  .capstone-brief {
+    padding: 20px 18px;
+  }
+
+  .capstone-journey {
+    display: flex;
+    overflow-x: auto;
+    gap: 6px;
+    padding-bottom: 3px;
+    scrollbar-width: thin;
+  }
+
+  .capstone-journey-step {
+    flex: 0 0 74px;
+  }
+
+  .capstone-scene-head,
+  .capstone-dialogue,
+  .capstone-choice,
+  .crowd-stack {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+
+  .capstone-line {
+    font-size: 21px;
+  }
+
+  .crowd-line {
+    grid-template-columns: 58px minmax(0, 1fr);
+  }
+}
