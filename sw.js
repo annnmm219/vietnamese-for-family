@@ -1,15 +1,18 @@
-const CACHE_NAME = "vff-v0.7";
+const CACHE_NAME = "vff-v0.8";
 const CORE_ASSETS = [
   "./",
   "./index.html",
   "./styles.css",
   "./course.css",
+  "./lesson-8.css",
   "./mobile.css",
   "./course-data.js",
   "./lesson-2.js",
   "./lesson-7.js",
+  "./lesson-8.js",
   "./app.js",
   "./audio-fix.js",
+  "./lesson-8-ui.js",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
