@@ -6,7 +6,7 @@
 
 ## Project status
 
-**V0.8: Lessons 1–8 are authored and playable in the mobile-first MVP.**
+**V0.9: Lessons 1–9 are authored and playable in the mobile-first MVP.**
 
 The project is a lightweight installable web app hosted on GitHub Pages. It works as a normal website, is designed primarily for phone use, and can be added to a phone home screen as a Progressive Web App (PWA).
 
@@ -37,10 +37,10 @@ Playable authored lessons:
 - Lesson 6: Work, Home & Plans
 - Lesson 7: Everyday Family Small Talk
 - Lesson 8: Understanding Natural, Fast Vietnamese
+- Lesson 9: Tết & Family Visits
 
 Still to be authored:
 
-- Lesson 9: Tết & Family Visits
 - Lesson 10: Surviving a Family Gathering
 
 ## Lesson 8 comprehension model
@@ -54,6 +54,18 @@ Lesson 8 deliberately breaks from the normal vocabulary-heavy lesson pattern. It
 - reveal a fuller practice form only after first trying to understand the short form
 
 Audio for Lesson 8 is intentionally deferred. The current interaction teaches the comprehension strategy now and is ready to become audio-heavy during the final sound pass.
+
+## Lesson 9 visit model
+
+Lesson 9 is organized as a five-step family visit flow rather than another vocabulary chapter:
+
+1. arrive and greet the elders
+2. give one simple Tết wish
+3. follow the household's practice around the family altar
+4. receive lì xì warmly
+5. leave politely using `xin phép`
+
+The lesson explicitly avoids treating variable household customs as universal Vietnamese rules. Altar participation, shoes, gift placement, and when to open lì xì are taught as situations where the learner should observe the family and ask when unsure.
 
 ## Mobile app / PWA
 
@@ -98,6 +110,7 @@ vietnamese-for-family/
 ├── course.css
 ├── mobile.css
 ├── lesson-8.css
+├── lesson-9.css
 ├── app.js
 ├── audio-fix.js
 ├── course-data.js
@@ -105,6 +118,8 @@ vietnamese-for-family/
 ├── lesson-7.js
 ├── lesson-8.js
 ├── lesson-8-ui.js
+├── lesson-9.js
+├── lesson-9-ui.js
 ├── manifest.webmanifest
 ├── sw.js
 ├── icon-192.png
