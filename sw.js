@@ -1,4 +1,4 @@
-const CACHE_NAME = "vff-v0.9";
+const CACHE_NAME = "vff-v0.9.1";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -12,6 +12,7 @@ const CORE_ASSETS = [
   "./lesson-7.js",
   "./lesson-8.js",
   "./lesson-9.js",
+  "./regional-pronouns.js",
   "./app.js",
   "./audio-fix.js",
   "./lesson-8-ui.js",
