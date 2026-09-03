@@ -1,0 +1,373 @@
+.header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 9px;
+}
+
+.install-button {
+  min-height: 40px;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 8px 13px;
+  background: var(--accent);
+  color: white;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.install-button:hover {
+  background: var(--accent-dark);
+  border-color: var(--accent-dark);
+}
+
+.audio-error {
+  color: #9a4242;
+}
+
+button {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+@media (max-width: 760px) {
+  html {
+    scroll-padding-top: 76px;
+  }
+
+  body {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .site-header {
+    width: min(100% - 24px, 1180px);
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-bottom: 12px;
+  }
+
+  .brand {
+    gap: 9px;
+    min-width: 0;
+  }
+
+  .brand-mark {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    flex: 0 0 36px;
+    font-size: 16px;
+  }
+
+  .brand > span:last-child {
+    min-width: 0;
+  }
+
+  .brand strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+  }
+
+  .brand small,
+  .lesson-badge {
+    display: none;
+  }
+
+  .header-actions {
+    flex: 0 0 auto;
+  }
+
+  .install-button {
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+
+  .page-shell {
+    width: min(100% - 20px, 1120px);
+  }
+
+  .course-nav {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    width: 100%;
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    padding: 9px 10px 10px;
+    background: rgba(255, 250, 245, 0.94);
+    border-bottom: 1px solid rgba(229, 216, 207, 0.8);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    scrollbar-width: none;
+  }
+
+  .course-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .lesson-tab {
+    flex: 0 0 142px;
+    min-height: 58px;
+    padding: 9px 10px;
+    border-radius: 13px;
+  }
+
+  .lesson-tab-number {
+    flex-basis: 28px;
+    width: 28px;
+    height: 28px;
+  }
+
+  .lesson-tab-copy strong {
+    font-size: 11px;
+  }
+
+  .lesson-tab-copy small {
+    font-size: 9px;
+  }
+
+  .hero {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 22px 0 16px;
+  }
+
+  .hero-copy {
+    padding: 0;
+  }
+
+  h1 {
+    margin-bottom: 12px;
+    font-size: clamp(29px, 8.5vw, 38px);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .hero-text {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .dialect-panel {
+    padding: 14px;
+    border-radius: 17px;
+    box-shadow: none;
+  }
+
+  .setting-label {
+    margin-bottom: 7px;
+  }
+
+  .dialect-button {
+    min-height: 44px;
+    padding: 9px;
+  }
+
+  .setting-summary {
+    margin-top: 9px;
+  }
+
+  .status-strip {
+    grid-template-columns: 1fr;
+    gap: 9px;
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+
+  .status-strip > div:first-child {
+    min-width: 0;
+    justify-content: space-between;
+  }
+
+  .status-strip .text-button {
+    min-height: 44px;
+    justify-self: stretch;
+    padding: 8px 0 0;
+    text-align: left;
+  }
+
+  .progress-track {
+    height: 6px;
+  }
+
+  .audio-note {
+    margin-top: 10px;
+    padding: 11px 13px;
+    font-size: 11px;
+  }
+
+  .lesson-stack {
+    gap: 14px;
+    padding: 18px 0 44px;
+  }
+
+  .lesson-section {
+    border-radius: 18px;
+    box-shadow: none;
+  }
+
+  .section-head {
+    padding: 20px 17px 8px;
+  }
+
+  .section-head h2 {
+    font-size: 23px;
+    line-height: 1.24;
+  }
+
+  .section-head p:last-child {
+    font-size: 13px;
+  }
+
+  .section-body {
+    padding: 7px 17px 19px;
+  }
+
+  .vocab-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 9px;
+  }
+
+  .vocab-card {
+    min-height: 0;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .vocab-top {
+    display: grid;
+    gap: 10px;
+  }
+
+  .vocab-word {
+    font-size: 21px;
+  }
+
+  .vocab-meaning {
+    font-size: 11px;
+  }
+
+  .audio-actions {
+    width: 100%;
+  }
+
+  .speak-button,
+  .slow-button {
+    min-height: 44px;
+    flex: 1 1 80px;
+    padding: 8px 10px;
+  }
+
+  .phrase-list {
+    gap: 9px;
+  }
+
+  .phrase-card {
+    grid-template-columns: 1fr;
+    gap: 11px;
+    padding: 14px;
+    border-radius: 14px;
+  }
+
+  .phrase-vietnamese {
+    font-size: 18px;
+    line-height: 1.45;
+  }
+
+  .phrase-english {
+    font-size: 12px;
+  }
+
+  .pattern-card {
+    margin-top: 12px;
+  }
+
+  .pattern-card summary {
+    min-height: 48px;
+    padding: 13px 14px;
+  }
+
+  .quiz-card {
+    padding: 15px;
+    border-radius: 14px;
+  }
+
+  .quiz-question {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .answer-button {
+    min-height: 48px;
+    padding: 12px 13px;
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .scenario {
+    border-radius: 16px;
+  }
+
+  .scenario-scene {
+    padding: 19px 16px;
+  }
+
+  .scenario-line {
+    font-size: 20px;
+    line-height: 1.4;
+  }
+
+  .scenario-actions {
+    padding: 15px;
+  }
+
+  .completion-card {
+    padding: 24px 17px;
+    border-radius: 18px;
+  }
+
+  .completion-card h2 {
+    font-size: 25px;
+  }
+
+  .completion-score {
+    width: 68px;
+    height: 68px;
+    font-size: 19px;
+  }
+
+  .next-lesson-button {
+    min-height: 44px;
+  }
+
+  .site-footer {
+    display: grid;
+    gap: 3px;
+    padding-bottom: max(28px, env(safe-area-inset-bottom));
+  }
+}
+
+@media (max-width: 370px) {
+  .vocab-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .lesson-tab {
+    flex-basis: 132px;
+  }
+
+  h1 {
+    font-size: 29px;
+  }
+}
+
+@media (display-mode: standalone) {
+  .site-header {
+    padding-top: max(14px, env(safe-area-inset-top));
+  }
+}
