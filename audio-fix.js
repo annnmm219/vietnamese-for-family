@@ -7,6 +7,55 @@
   let playGeneration = 0;
   const decodedBuffers = new Map();
 
+  function cueText(cueId, dialect) {
+    const lesson = currentLesson();
+    if (!lesson || lesson.id !== 1) return "";
+
+    if (cueId.startsWith("vocab-")) {
+      const id = cueId.slice("vocab-".length);
+      return lesson.vocabulary.find(item => item.id === id)?.[dialect] || "";
+    }
+
+    if (cueId.startsWith("phrase-")) {
+      const id = cueId.slice("phrase-".length);
+      return lesson.phrases.find(item => item.id === id)?.[dialect] || "";
+    }
+
+    if (cueId === "scenario") return lesson.scenario?.[dialect] || "";
+    if (cueId === "scenario-reply") {
+      const answer = lesson.scenario?.answers?.find(item => item.correct);
+      return answer?.[dialect] || answer?.text || "";
+    }
+    if (cueId === "final") return dialect === "north" ? lesson.finalNorth : lesson.finalSouth;
+    return "";
+  }
+
+  function chooseVietnameseVoice() {
+    if (!("speechSynthesis" in window)) return null;
+    const voices = speechSynthesis.getVoices();
+    return voices.find(voice => /^vi(-|$)/i.test(voice.lang)) || null;
+  }
+
+  function speakNorthern(cueId, slow) {
+    const text = cueText(cueId, "north");
+    if (!text || !("speechSynthesis" in window)) {
+      setAudioStatus("Northern audio is temporarily unavailable on this device.", true);
+      return;
+    }
+
+    speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = "vi-VN";
+    utterance.rate = slow ? (cueId.startsWith("vocab-") ? 0.55 : 0.7) : 0.9;
+    utterance.pitch = 1;
+    const voice = chooseVietnameseVoice();
+    if (voice) utterance.voice = voice;
+
+    utterance.onstart = () => setAudioStatus(`Playing Northern${slow ? " slowly" : ""}.`);
+    utterance.onerror = () => setAudioStatus("Northern device voice could not start. Try again once the page has finished loading.", true);
+    speechSynthesis.speak(utterance);
+  }
+
   function getContext() {
     if (!BaseAudioContext) return null;
     if (!audioContext) audioContext = new BaseAudioContext();
@@ -32,6 +81,7 @@
 
   stopActiveAudio = function () {
     playGeneration += 1;
+    if ("speechSynthesis" in window) speechSynthesis.cancel();
 
     if (activeSource) {
       try { activeSource.stop(); } catch (_) {}
@@ -43,9 +93,14 @@
   };
 
   playLessonOneAudio = async function (dialect, cueId, slow = false) {
+    if (dialect === "north") {
+      stopActiveAudio();
+      speakNorthern(cueId, slow);
+      return;
+    }
+
     const cue = LESSON_ONE_CUES[dialect]?.[cueId];
     const context = getContext();
-
     if (!cue || !context) {
       originalPlayLessonOneAudio(dialect, cueId, slow);
       return;
@@ -68,10 +123,6 @@
 
       const isVocabulary = cueId.startsWith("vocab-");
       const playbackRate = slow ? (isVocabulary ? 0.58 : 0.72) : 1;
-
-      // Web Audio starts at an exact decoded sample rather than an MP3 seek frame.
-      // Keep a small amount of silence around the authored cue so initials and
-      // sentence endings are never shaved off.
       const leadIn = isVocabulary ? 0.12 : 0.10;
       const tail = isVocabulary ? 0.16 : 0.24;
       const offset = Math.max(0, start - leadIn);
@@ -99,9 +150,6 @@
     }
   };
 
-  // Short Vietnamese words need a learner-speed option too. The previous UI
-  // only offered Slow for phrases, which made words such as "con" unnecessarily
-  // difficult to study.
   renderVocabulary = function (lesson) {
     const cards = lesson.vocabulary.map(item => `<article class="vocab-card">
       <div class="vocab-top">
@@ -123,6 +171,5 @@
     </section>`;
   };
 
-  // Re-render once because app.js renders before this compatibility layer loads.
   renderLesson();
 })();
