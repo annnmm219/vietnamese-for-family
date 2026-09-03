@@ -23,35 +23,40 @@
         north: "Ăn chưa con?",
         south: "Ăn chưa con?",
         meaning: "Have you eaten yet?",
-        textbook: "Con ăn cơm chưa?",
+        textbookNorth: "Con ăn cơm chưa?",
+        textbookSouth: "Con ăn cơm chưa?",
         note: "The subject and even cơm can disappear because the situation makes them obvious. The signal chưa carries most of the question."
       },
       {
         north: "Mấy giờ về?",
         south: "Mấy giờ về?",
         meaning: "What time are you coming home?",
-        textbook: "Mấy giờ con về nhà?",
+        textbookNorth: "Mấy giờ con về nhà?",
+        textbookSouth: "Mấy giờ con về nhà?",
         note: "The speaker does not need to say con or nhà if they are already talking to you about coming home."
       },
       {
         north: "Mai đi đâu?",
         south: "Mai đi đâu?",
         meaning: "Where are you going tomorrow?",
-        textbook: "Ngày mai con định đi đâu?",
+        textbookNorth: "Ngày mai con định đi đâu?",
+        textbookSouth: "Ngày mai con định đi đâu?",
         note: "Catch mai + đi + đâu. That is already enough to understand the topic and question."
       },
       {
         north: "Về rồi à?",
         south: "Về rồi hả?",
         meaning: "You're back already?",
-        textbook: "Con về rồi à / hả?",
+        textbookNorth: "Con về rồi à?",
+        textbookSouth: "Con về rồi hả?",
         note: "The person being spoken to is obvious, so the pronoun is dropped. Rồi tells you the return has already happened."
       },
       {
         north: "Ăn thêm không?",
         south: "Ăn thêm không?",
         meaning: "Do you want some more?",
-        textbook: "Con có muốn ăn thêm không?",
+        textbookNorth: "Con có muốn ăn thêm không?",
+        textbookSouth: "Con có muốn ăn thêm không?",
         note: "At the table, nobody needs to repeat what food they mean. Context supplies the missing object."
       }
     ],
@@ -70,7 +75,7 @@
         id: "q2",
         question: "Dad asks: ‘Mấy giờ về?’. Which information is omitted because the situation already supplies it?",
         answers: [
-          { text: "Who is coming home and the word for home", correct: true },
+          { text: "The subject ‘you’ and nhà, ‘home’", correct: true },
           { text: "The time expression", correct: false },
           { text: "The action of returning", correct: false }
         ],
