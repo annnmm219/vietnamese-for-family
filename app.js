@@ -11,36 +11,60 @@ const state = {
   currentLesson: Number(localStorage.getItem(STORAGE_KEYS.currentLesson) || 1)
 };
 
-const AUDIO_MASTERS = {
-  north: "audio/north/lesson-01/master.mp3",
-  south: "audio/south/lesson-01/master.mp3"
-};
-
-const AUDIO_CUES = {
+const LESSON_ONE_AUDIO = {
   north: {
-    "vocab-mom": [0.00, 0.38], "vocab-dad": [0.86, 1.47], "vocab-self-child": [1.89, 2.35],
-    "vocab-grandfather": [2.79, 3.40], "vocab-grandmother": [3.81, 4.23], "vocab-polite-yes": [4.80, 5.31],
-    "phrase-hello-mom": [5.72, 6.66], "phrase-hello-dad": [7.46, 8.37], "phrase-hello-grandparents": [9.14, 10.21],
-    "phrase-nice-to-meet": [11.02, 12.55], "scenario": [15.63, 16.72],
-    "scenario-reply": [17.57, 19.22], "final": [19.99, 21.04]
+    "vocab-a": "audio/north/lesson-01/vocab-a.mp3",
+    "vocab-b": "audio/north/lesson-01/vocab-b.mp3",
+    "phrases-a": "audio/north/lesson-01/phrases-a.mp3",
+    "phrases-b": "audio/north/lesson-01/phrases-b.mp3",
+    "scenario-a": "audio/north/lesson-01/scenario-a.mp3",
+    "scenario-b": "audio/north/lesson-01/scenario-b.mp3"
   },
   south: {
-    "vocab-mom": [0.00, 0.36], "vocab-dad": [0.69, 1.04], "vocab-self-child": [1.37, 1.72],
-    "vocab-grandfather": [2.03, 2.35], "vocab-grandmother": [2.70, 3.09], "vocab-polite-yes": [3.45, 3.87],
-    "phrase-hello-mom": [4.25, 5.61], "phrase-hello-dad": [6.39, 7.74], "phrase-hello-grandparents": [8.53, 10.13],
-    "phrase-nice-to-meet": [10.90, 13.06], "scenario": [14.97, 16.04],
-    "scenario-reply": [16.81, 18.58], "final": [19.33, 20.89]
+    "vocab-a": "audio/south/lesson-01/vocab-a.mp3",
+    "vocab-b": "audio/south/lesson-01/vocab-b.mp3",
+    "phrases-a": "audio/south/lesson-01/phrases-a.mp3",
+    "phrases-b1": "audio/south/lesson-01/phrases-b1.mp3",
+    "phrases-b2": "audio/south/lesson-01/phrases-b2.mp3",
+    "scenario-a": "audio/south/lesson-01/scenario-a.mp3",
+    "scenario-b": "audio/south/lesson-01/scenario-b.mp3"
   }
 };
 
-const audioPlayers = Object.fromEntries(
-  Object.entries(AUDIO_MASTERS).map(([dialect, src]) => {
-    const audio = new Audio(src);
-    audio.preload = "metadata";
-    return [dialect, audio];
-  })
-);
+const LESSON_ONE_CUES = {
+  north: {
+    "vocab-mom": ["vocab-a", 0.00, 0.38],
+    "vocab-dad": ["vocab-a", 0.86, 1.47],
+    "vocab-self-child": ["vocab-a", 1.89, 2.35],
+    "vocab-grandfather": ["vocab-b", 0.00, 0.61],
+    "vocab-grandmother": ["vocab-b", 1.02, 1.44],
+    "vocab-polite-yes": ["vocab-b", 2.01, 2.52],
+    "phrase-hello-mom": ["phrases-a", 0.00, 0.94],
+    "phrase-hello-dad": ["phrases-a", 1.74, 2.65],
+    "phrase-hello-grandparents": ["phrases-b", 0.00, 1.07],
+    "phrase-nice-to-meet": ["phrases-b", 1.88, 3.41],
+    "scenario": ["scenario-a", 0.00, 1.09],
+    "scenario-reply": ["scenario-a", 1.94, 3.59],
+    "final": ["scenario-b", 0.00, 1.05]
+  },
+  south: {
+    "vocab-mom": ["vocab-a", 0.00, 0.36],
+    "vocab-dad": ["vocab-a", 0.69, 1.04],
+    "vocab-self-child": ["vocab-a", 1.37, 1.72],
+    "vocab-grandfather": ["vocab-b", 0.00, 0.32],
+    "vocab-grandmother": ["vocab-b", 0.67, 1.06],
+    "vocab-polite-yes": ["vocab-b", 1.42, 1.84],
+    "phrase-hello-mom": ["phrases-a", 0.00, 1.36],
+    "phrase-hello-dad": ["phrases-a", 2.14, 3.49],
+    "phrase-hello-grandparents": ["phrases-b1", 0.00, 1.60],
+    "phrase-nice-to-meet": ["phrases-b2", 0.00, 2.16],
+    "scenario": ["scenario-a", 0.00, 1.07],
+    "scenario-reply": ["scenario-a", 1.84, 3.61],
+    "final": ["scenario-b", 0.00, 1.56]
+  }
+};
 
+const audioPlayers = new Map();
 let activeAudio = null;
 let activeTimeHandler = null;
 
@@ -56,6 +80,7 @@ const dialectSummary = document.getElementById("dialect-summary");
 const audioNote = document.getElementById("audio-note");
 const audioStatus = document.getElementById("audio-status");
 const resetButton = document.getElementById("reset-progress");
+const installButton = document.getElementById("install-app");
 
 function esc(value) {
   return String(value ?? "")
@@ -120,6 +145,15 @@ function setAudioStatus(message, isError = false) {
   audioStatus.classList.toggle("audio-error", isError);
 }
 
+function getAudio(src) {
+  if (!audioPlayers.has(src)) {
+    const audio = new Audio(src);
+    audio.preload = "metadata";
+    audioPlayers.set(src, audio);
+  }
+  return audioPlayers.get(src);
+}
+
 function stopActiveAudio() {
   if (!activeAudio) return;
   if (activeTimeHandler) {
@@ -131,39 +165,46 @@ function stopActiveAudio() {
 }
 
 function playLessonOneAudio(dialect, cueId, slow = false) {
-  const cue = AUDIO_CUES[dialect]?.[cueId];
-  const audio = audioPlayers[dialect];
+  const cue = LESSON_ONE_CUES[dialect]?.[cueId];
+  if (!cue) {
+    setAudioStatus(`No ${dialectLabel(dialect)} recording exists for this item yet.`, true);
+    return;
+  }
 
-  if (!cue || !audio) {
+  const [group, start, end] = cue;
+  const src = LESSON_ONE_AUDIO[dialect]?.[group];
+  if (!src) {
     setAudioStatus(`No ${dialectLabel(dialect)} recording exists for this item yet.`, true);
     return;
   }
 
   stopActiveAudio();
+  const audio = getAudio(src);
   activeAudio = audio;
   audio.playbackRate = slow ? 0.72 : 1;
 
   const startPlayback = () => {
-    audio.currentTime = cue[0];
+    audio.currentTime = Math.max(0, start);
     activeTimeHandler = () => {
-      if (audio.currentTime >= cue[1]) stopActiveAudio();
+      if (audio.currentTime >= end) stopActiveAudio();
     };
     audio.addEventListener("timeupdate", activeTimeHandler);
     setAudioStatus(`Playing ${dialectLabel(dialect)}${slow ? " slowly" : ""}.`);
     audio.play().catch(() => {
       stopActiveAudio();
-      setAudioStatus("Lesson 1 audio still needs its master MP3 uploaded to GitHub.", true);
+      setAudioStatus("Audio could not start. Tap the button again after the page finishes loading.", true);
     });
   };
 
   if (audio.readyState >= 1) {
     startPlayback();
   } else {
-    audio.addEventListener("loadedmetadata", startPlayback, { once: true });
-    audio.addEventListener("error", () => {
+    const onError = () => {
       stopActiveAudio();
-      setAudioStatus("Lesson 1 audio still needs its master MP3 uploaded to GitHub.", true);
-    }, { once: true });
+      setAudioStatus("Lesson 1 audio could not be loaded. Check your connection and refresh.", true);
+    };
+    audio.addEventListener("loadedmetadata", startPlayback, { once: true });
+    audio.addEventListener("error", onError, { once: true });
     audio.load();
   }
 }
@@ -171,7 +212,7 @@ function playLessonOneAudio(dialect, cueId, slow = false) {
 function audioControl(lesson, cueId, includeSlow = false) {
   if (!lesson.audioReady) return "";
   return `<div class="audio-actions">
-    <button class="speak-button" type="button" data-audio-cue="${esc(cueId)}">🔊 Hear</button>
+    <button class="speak-button" type="button" data-audio-cue="${esc(cueId)}" aria-label="Hear pronunciation">🔊 Hear</button>
     ${includeSlow ? `<button class="slow-button" type="button" data-audio-cue="${esc(cueId)}" data-slow="true">Slow</button>` : ""}
   </div>`;
 }
@@ -227,8 +268,8 @@ function renderStatus() {
   progressBar.style.width = `${pct}%`;
   audioNote.hidden = false;
 
-  if (lesson.audioReady) {
-    setAudioStatus(`Lesson 1 uses the ${dialectLabel(state.dialect)} regional recording when the master MP3 is present.`);
+  if (lesson.id === 1 && lesson.audioReady) {
+    setAudioStatus(`Lesson 1 ${dialectLabel(state.dialect)} audio is ready. Tap Hear or Slow.`);
   } else {
     setAudioStatus(`Lesson ${lesson.id} audio will be produced after the full curriculum is locked.`);
   }
@@ -486,6 +527,35 @@ resetButton.addEventListener("click", () => {
   localStorage.removeItem(progressKey(lesson.id));
   renderLesson();
 });
+
+let deferredInstallPrompt = null;
+
+window.addEventListener("beforeinstallprompt", event => {
+  event.preventDefault();
+  deferredInstallPrompt = event;
+  if (installButton) installButton.hidden = false;
+});
+
+installButton?.addEventListener("click", async () => {
+  if (!deferredInstallPrompt) return;
+  deferredInstallPrompt.prompt();
+  await deferredInstallPrompt.userChoice;
+  deferredInstallPrompt = null;
+  installButton.hidden = true;
+});
+
+window.addEventListener("appinstalled", () => {
+  deferredInstallPrompt = null;
+  if (installButton) installButton.hidden = true;
+});
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("./sw.js").catch(() => {
+      // The course still works online if offline caching is unavailable.
+    });
+  });
+}
 
 if (!LESSONS.some(lesson => lesson.id === state.currentLesson)) state.currentLesson = 1;
 renderLesson();
