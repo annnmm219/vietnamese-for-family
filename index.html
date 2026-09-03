@@ -24,6 +24,7 @@
   <link rel="stylesheet" href="lesson-10.css" />
   <link rel="stylesheet" href="mobile.css" />
   <link rel="stylesheet" href="hero-tuning.css" />
+  <link rel="stylesheet" href="shell-layout.css" />
 </head>
 <body>
   <header class="site-header">
@@ -34,30 +35,44 @@
         <small>Learn the Vietnamese your family speaks.</small>
       </span>
     </a>
+
     <div class="header-actions">
-      <button id="install-app" class="install-button" type="button" hidden>Install app</button>
-      <div id="lesson-badge" class="lesson-badge">Lesson 1 · Meeting the Family</div>
+      <div class="top-dialect-panel" aria-label="Accent settings">
+        <span class="top-dialect-label">Accent</span>
+        <div class="segmented" role="group" aria-label="Primary accent">
+          <button class="dialect-button" type="button" data-dialect="north">Northern</button>
+          <button class="dialect-button" type="button" data-dialect="south">Southern</button>
+        </div>
+        <span id="dialect-summary" class="top-dialect-summary"></span>
+      </div>
+
+      <button id="lesson-menu-button" class="lesson-menu-button" type="button" aria-controls="lesson-sidebar" aria-expanded="false">
+        <span class="lesson-menu-icon" aria-hidden="true"><span></span></span>
+        <span>Lessons</span>
+      </button>
     </div>
   </header>
 
-  <main id="top">
-    <nav id="course-nav" class="course-nav page-shell" aria-label="Course lessons"></nav>
+  <aside id="lesson-sidebar" class="lesson-sidebar" aria-label="Course lessons" aria-hidden="true">
+    <div class="sidebar-head">
+      <div class="sidebar-head-copy">
+        <small>Course</small>
+        <strong>10 lessons</strong>
+      </div>
+      <button id="sidebar-close" class="sidebar-close" type="button" aria-label="Close lessons">×</button>
+    </div>
+    <div id="lesson-badge" class="sidebar-current-lesson">Lesson 1 · Meeting the Family</div>
+    <nav id="course-nav" class="course-nav" aria-label="Course lessons"></nav>
+  </aside>
+  <button id="sidebar-backdrop" class="sidebar-backdrop" type="button" aria-label="Close lessons" tabindex="-1"></button>
 
+  <main id="top">
     <section class="hero page-shell">
       <div class="hero-copy">
         <p id="hero-eyebrow" class="eyebrow"></p>
         <h1 id="hero-title"></h1>
         <p id="hero-text" class="hero-text"></p>
       </div>
-
-      <aside class="dialect-panel" aria-label="Dialect settings">
-        <p class="setting-label">I want to learn</p>
-        <div class="segmented" role="group" aria-label="Primary dialect">
-          <button class="dialect-button" type="button" data-dialect="north">Northern</button>
-          <button class="dialect-button" type="button" data-dialect="south">Southern</button>
-        </div>
-        <p id="dialect-summary" class="setting-summary"></p>
-      </aside>
     </section>
 
     <section class="page-shell status-strip" aria-label="Lesson status">
@@ -78,7 +93,7 @@
   </main>
 
   <footer class="site-footer page-shell">
-    <p>Vietnamese for Family · V0.10.2 · Hero scale tuned</p>
+    <p>Vietnamese for Family · V0.10.3 · Sidebar shell</p>
     <p>Built for real conversations with your Vietnamese family.</p>
   </footer>
 
@@ -95,5 +110,6 @@
   <script src="lesson-8-ui.js"></script>
   <script src="lesson-9-ui.js"></script>
   <script src="lesson-10-ui.js"></script>
+  <script src="shell-layout.js"></script>
 </body>
 </html>
