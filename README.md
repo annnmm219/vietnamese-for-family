@@ -6,7 +6,9 @@
 
 ## Project status
 
-**V0.9: Lessons 1–9 are authored and playable in the mobile-first MVP.**
+**V0.10: all 10 lessons are authored and playable in the mobile-first MVP.**
+
+The curriculum is now complete enough for **native-speaker language validation**, but the wording is not yet considered locked. Audio production and the richer visual/interactivity pass intentionally come after that validation.
 
 The project is a lightweight installable web app hosted on GitHub Pages. It works as a normal website, is designed primarily for phone use, and can be added to a phone home screen as a Progressive Web App (PWA).
 
@@ -23,49 +25,32 @@ Northern and Southern Vietnamese are parallel learning tracks selected at the to
 7. **Everyday Family Small Talk**: health, weather, routines, check-ins, and conversational follow-ups
 8. **Understanding Natural, Fast Vietnamese**: anchor-word recognition, contextual omissions, and short natural family speech
 9. **Tết & Family Visits**: seasonal wishes, visiting etiquette, lì xì, altar etiquette, and host/guest dynamics
-10. **Surviving a Family Gathering**: capstone simulation integrating the entire course
+10. **Surviving a Family Gathering**: continuous capstone simulation integrating the entire course
 
 ## Current build status
 
-Playable authored lessons:
+All ten lessons are playable.
 
-- Lesson 1: Meeting the Family
-- Lesson 2: Politeness & Natural Responses
-- Lesson 3: Food & Family Meals
-- Lesson 4: Helping Around the House
-- Lesson 5: Questions from Relatives
-- Lesson 6: Work, Home & Plans
-- Lesson 7: Everyday Family Small Talk
-- Lesson 8: Understanding Natural, Fast Vietnamese
-- Lesson 9: Tết & Family Visits
+Lesson 8 deliberately breaks from the normal vocabulary-heavy lesson pattern and trains learners to catch strong signals, infer omitted context, and understand short natural family speech.
 
-Still to be authored:
+Lesson 9 uses a five-step family-visit flow and explicitly avoids treating variable household customs as universal Vietnamese rules.
 
-- Lesson 10: Surviving a Family Gathering
+Lesson 10 is a seven-scene continuous family gathering: arrival, meal, personal question, teasing, overlapping conversation, toast, and leaving. It introduces no vocabulary list and instead tests reuse of Lessons 1–9.
 
-## Lesson 8 comprehension model
+## Native-speaker validation
 
-Lesson 8 deliberately breaks from the normal vocabulary-heavy lesson pattern. It teaches learners to:
+Two reviewer packs live in `validation/`:
 
-- catch strong signals such as `chưa`, `rồi`, `đâu`, `mấy giờ`, `mai`, and `về`
-- infer omitted pronouns, objects, and obvious context
-- understand short natural family questions without reconstructing a full textbook sentence first
-- use the situation plus two or three strong words to identify what a speaker wants
-- reveal a fuller practice form only after first trying to understand the short form
+- `validation/NORTHERN_VALIDATION.md`
+- `validation/SOUTHERN_VALIDATION.md`
 
-Audio for Lesson 8 is intentionally deferred. The current interaction teaches the comprehension strategy now and is ready to become audio-heavy during the final sound pass.
+They contain the regional words, phrases, family prompts, replies and simulation lines that the course intends to teach. Each item has a stable ID so native speakers can return only the items they would change and the everyday wording they would actually use.
 
-## Lesson 9 visit model
+The current course convention to validate is:
 
-Lesson 9 is organized as a five-step family visit flow rather than another vocabulary chapter:
-
-1. arrive and greet the elders
-2. give one simple Tết wish
-3. follow the household's practice around the family altar
-4. receive lì xì warmly
-5. leave politely using `xin phép`
-
-The lesson explicitly avoids treating variable household customs as universal Vietnamese rules. Altar participation, shoes, gift placement, and when to open lì xì are taught as situations where the learner should observe the family and ask when unsure.
+- Northern grandparents: learner self-reference `cháu`
+- Southern grandparents: learner self-reference `con`
+- Parents in both tracks: learner self-reference `con`
 
 ## Mobile app / PWA
 
@@ -84,22 +69,34 @@ This is intentionally a PWA rather than a native iOS/Android app for the MVP. It
 
 ## Audio strategy
 
-Audio production is a later content-lock phase and does not block curriculum development.
+Audio is deliberately paused until native-speaker wording is validated.
 
-Lesson 1 remains an experimental audio reference. The current Northern MVP uses exact visible text through a Vietnamese device voice because the earlier sliced Northern recording map proved unreliable. Final production should use clean individual audio files per word, phrase, sentence, and scenario rather than tiny seeks inside long MP3 masters.
+Lesson 1 proved that seeking tiny segments inside longer MP3 masters is too fragile for a language-learning product. Final production should use **clean individual audio files per word, phrase, sentence and scenario**, with the app controlling slow playback from those approved files.
 
-After all ten lessons are authored and audited, the project will:
+After validation, the project will:
 
-1. lock all Northern and Southern wording
-2. extract all required spoken material
-3. deduplicate repeated vocabulary and phrases
-4. create final Northern and Southern production scripts
-5. generate clean individual audio files
-6. review pronunciation against the visible text
-7. integrate normal and slow playback
-8. add final audio to the offline cache
+1. apply Northern and Southern reviewer corrections
+2. lock all visible wording
+3. extract and deduplicate final spoken material
+4. generate clean Northern and Southern audio files
+5. review every recording against the visible text
+6. integrate normal and slow playback
+7. add final audio to the offline cache
 
-See `AUDIO_SETUP.md` for the production approach.
+See `AUDIO_SETUP.md` for the current audio history and production approach.
+
+## Interaction roadmap after audio
+
+Once language and sound are stable, the second interaction pass can add:
+
+- purposeful family-scene illustrations
+- tappable household and meal objects
+- sentence-building/reordering
+- branching micro-dialogues
+- listening-first interactions for Lesson 8
+- richer multi-speaker staging for Lesson 10
+
+The goal is not to decorate every screen. Visuals and interactions should make a specific language task easier to understand or remember.
 
 ## Project structure
 
@@ -111,6 +108,7 @@ vietnamese-for-family/
 ├── mobile.css
 ├── lesson-8.css
 ├── lesson-9.css
+├── lesson-10.css
 ├── app.js
 ├── audio-fix.js
 ├── course-data.js
@@ -120,6 +118,12 @@ vietnamese-for-family/
 ├── lesson-8-ui.js
 ├── lesson-9.js
 ├── lesson-9-ui.js
+├── lesson-10.js
+├── lesson-10-ui.js
+├── regional-pronouns.js
+├── validation/
+│   ├── NORTHERN_VALIDATION.md
+│   └── SOUTHERN_VALIDATION.md
 ├── manifest.webmanifest
 ├── sw.js
 ├── icon-192.png
@@ -140,7 +144,7 @@ vietnamese-for-family/
 5. Relationship terms taught inside actual relationships.
 6. Cultural meaning taught alongside literal meaning.
 7. Short, touch-friendly sessions rather than textbook chapters.
-8. Final audio only after wording is locked.
+8. Validate wording before final audio production.
 9. Lesson 8 is comprehension-heavy rather than vocabulary-heavy.
 10. Lesson 10 is a capstone simulation, not another vocabulary chapter.
 
