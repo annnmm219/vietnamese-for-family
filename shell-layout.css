@@ -1,0 +1,271 @@
+.site-header {
+  width: min(1180px, calc(100% - 32px));
+  flex-wrap: wrap;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.top-dialect-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.top-dialect-label {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.top-dialect-panel .segmented {
+  min-width: 232px;
+  padding: 4px;
+  border-radius: 12px;
+}
+
+.top-dialect-panel .dialect-button {
+  min-height: 38px;
+  padding: 8px 14px;
+  border-radius: 9px;
+  font-size: 12px;
+}
+
+.top-dialect-summary {
+  display: none;
+}
+
+.lesson-menu-button,
+.sidebar-close {
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.lesson-menu-button {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-size: 12px;
+}
+
+.lesson-menu-button:hover,
+.sidebar-close:hover {
+  border-color: rgba(154, 48, 66, .38);
+}
+
+.lesson-menu-icon {
+  width: 18px;
+  height: 14px;
+  display: grid;
+  align-content: space-between;
+}
+
+.lesson-menu-icon::before,
+.lesson-menu-icon::after,
+.lesson-menu-icon span {
+  content: "";
+  display: block;
+  width: 18px;
+  height: 2px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.hero {
+  display: block;
+  padding: 34px 0 24px;
+}
+
+.hero-copy,
+#hero-title,
+.hero-text {
+  max-width: none;
+  width: 100%;
+}
+
+#hero-title {
+  text-wrap: balance;
+}
+
+.hero-text {
+  max-width: 900px;
+}
+
+.lesson-sidebar {
+  position: fixed;
+  z-index: 90;
+  top: 0;
+  left: 0;
+  width: min(390px, 88vw);
+  height: 100dvh;
+  padding: max(18px, env(safe-area-inset-top)) 18px max(18px, env(safe-area-inset-bottom));
+  overflow-y: auto;
+  background: var(--paper);
+  border-right: 1px solid var(--line);
+  box-shadow: 22px 0 55px rgba(47, 41, 43, .14);
+  transform: translateX(-102%);
+  transition: transform .24s ease;
+}
+
+.lesson-sidebar.open {
+  transform: translateX(0);
+}
+
+.sidebar-backdrop {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  border: 0;
+  padding: 0;
+  background: rgba(47, 41, 43, .3);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .2s ease;
+}
+
+.sidebar-backdrop.open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+body.sidebar-open {
+  overflow: hidden;
+}
+
+.sidebar-head {
+  position: sticky;
+  top: -1px;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 4px 0 16px;
+  background: var(--paper);
+}
+
+.sidebar-head-copy small {
+  display: block;
+  margin-bottom: 2px;
+  color: var(--accent);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.sidebar-head-copy strong {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.sidebar-close {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.sidebar-current-lesson {
+  margin-bottom: 14px;
+  padding: 11px 13px;
+  border: 1px solid var(--line);
+  border-radius: 13px;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.lesson-sidebar .course-nav {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+  padding: 0;
+  position: static;
+  overflow: visible;
+  background: transparent;
+  border: 0;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.lesson-sidebar .lesson-tab {
+  width: 100%;
+  min-height: 62px;
+  flex: none;
+  padding: 11px 12px;
+  border-radius: 13px;
+}
+
+.lesson-sidebar .lesson-tab-copy strong {
+  font-size: 12px;
+}
+
+.lesson-sidebar .lesson-tab-copy small {
+  font-size: 10px;
+}
+
+@media (max-width: 760px) {
+  .site-header {
+    width: min(100% - 20px, 1180px);
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand {
+    flex: 1 1 auto;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 8px;
+  }
+
+  .top-dialect-panel {
+    min-width: 0;
+    display: block;
+  }
+
+  .top-dialect-label {
+    display: none;
+  }
+
+  .top-dialect-panel .segmented {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .top-dialect-panel .dialect-button {
+    min-height: 44px;
+    padding: 8px;
+  }
+
+  .lesson-menu-button {
+    min-height: 52px;
+    padding-inline: 13px;
+  }
+
+  .hero {
+    padding: 24px 0 16px;
+  }
+
+  #hero-title {
+    text-wrap: pretty;
+  }
+}
