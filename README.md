@@ -6,7 +6,7 @@
 
 ## Project status
 
-**V0.7: Lessons 1–7 are authored and playable in the mobile-first MVP.**
+**V0.8: Lessons 1–8 are authored and playable in the mobile-first MVP.**
 
 The project is a lightweight installable web app hosted on GitHub Pages. It works as a normal website, is designed primarily for phone use, and can be added to a phone home screen as a Progressive Web App (PWA).
 
@@ -21,7 +21,7 @@ Northern and Southern Vietnamese are parallel learning tracks selected at the to
 5. **Questions from Relatives**: age, career, relationships, children, appearance, and graceful non-answers
 6. **Work, Home & Plans**: describing work, living situation, interests, and future plans simply
 7. **Everyday Family Small Talk**: health, weather, routines, check-ins, and conversational follow-ups
-8. **Understanding Natural, Fast Vietnamese**: connected speech, rhythm, contextual omissions, and fast family dialogue
+8. **Understanding Natural, Fast Vietnamese**: anchor-word recognition, contextual omissions, and short natural family speech
 9. **Tết & Family Visits**: seasonal wishes, visiting etiquette, lì xì, altar etiquette, and host/guest dynamics
 10. **Surviving a Family Gathering**: capstone simulation integrating the entire course
 
@@ -36,24 +36,24 @@ Playable authored lessons:
 - Lesson 5: Questions from Relatives
 - Lesson 6: Work, Home & Plans
 - Lesson 7: Everyday Family Small Talk
+- Lesson 8: Understanding Natural, Fast Vietnamese
 
 Still to be authored:
 
-- Lesson 8: Understanding Natural, Fast Vietnamese
 - Lesson 9: Tết & Family Visits
 - Lesson 10: Surviving a Family Gathering
 
-## Lesson 7 design
+## Lesson 8 comprehension model
 
-Lesson 7 deliberately shifts from transactional phrases toward conversational participation. It teaches learners to:
+Lesson 8 deliberately breaks from the normal vocabulary-heavy lesson pattern. It teaches learners to:
 
-- ask how family members have been
-- say they are well, tired, or busy
-- comment on simple shared topics such as the weather
-- react with a short natural follow-up
-- add one related question instead of ending the exchange with a bare yes/no answer
+- catch strong signals such as `chưa`, `rồi`, `đâu`, `mấy giờ`, `mai`, and `về`
+- infer omitted pronouns, objects, and obvious context
+- understand short natural family questions without reconstructing a full textbook sentence first
+- use the situation plus two or three strong words to identify what a speaker wants
+- reveal a fuller practice form only after first trying to understand the short form
 
-Audio for Lesson 7 is intentionally deferred until the full curriculum is locked.
+Audio for Lesson 8 is intentionally deferred. The current interaction teaches the comprehension strategy now and is ready to become audio-heavy during the final sound pass.
 
 ## Mobile app / PWA
 
@@ -72,7 +72,7 @@ This is intentionally a PWA rather than a native iOS/Android app for the MVP. It
 
 ## Audio strategy
 
-Audio production is now treated as a later content-lock phase rather than something that blocks curriculum development.
+Audio production is a later content-lock phase and does not block curriculum development.
 
 Lesson 1 remains an experimental audio reference. The current Northern MVP uses exact visible text through a Vietnamese device voice because the earlier sliced Northern recording map proved unreliable. Final production should use clean individual audio files per word, phrase, sentence, and scenario rather than tiny seeks inside long MP3 masters.
 
@@ -83,7 +83,7 @@ After all ten lessons are authored and audited, the project will:
 3. deduplicate repeated vocabulary and phrases
 4. create final Northern and Southern production scripts
 5. generate clean individual audio files
-6. review pronunciation
+6. review pronunciation against the visible text
 7. integrate normal and slow playback
 8. add final audio to the offline cache
 
@@ -97,11 +97,14 @@ vietnamese-for-family/
 ├── styles.css
 ├── course.css
 ├── mobile.css
+├── lesson-8.css
 ├── app.js
 ├── audio-fix.js
 ├── course-data.js
 ├── lesson-2.js
 ├── lesson-7.js
+├── lesson-8.js
+├── lesson-8-ui.js
 ├── manifest.webmanifest
 ├── sw.js
 ├── icon-192.png
@@ -123,7 +126,7 @@ vietnamese-for-family/
 6. Cultural meaning taught alongside literal meaning.
 7. Short, touch-friendly sessions rather than textbook chapters.
 8. Final audio only after wording is locked.
-9. Lesson 8 becomes listening-heavy rather than vocabulary-heavy.
+9. Lesson 8 is comprehension-heavy rather than vocabulary-heavy.
 10. Lesson 10 is a capstone simulation, not another vocabulary chapter.
 
 ## GitHub Pages
