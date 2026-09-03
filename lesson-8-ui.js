@@ -25,23 +25,26 @@
   }
 
   function renderSpeechExamples(lesson) {
-    const examples = lesson.speechExamples.map((item, index) => `<article class="speech-strip">
-      <div class="speech-strip-main">
-        <span class="speech-index">${index + 1}</span>
-        <div>
-          <p class="speech-natural">${esc(item[state.dialect])}</p>
-          <p class="speech-meaning">${esc(item.meaning)}</p>
+    const examples = lesson.speechExamples.map((item, index) => {
+      const fuller = state.dialect === "north" ? item.textbookNorth : item.textbookSouth;
+      return `<article class="speech-strip">
+        <div class="speech-strip-main">
+          <span class="speech-index">${index + 1}</span>
+          <div>
+            <p class="speech-natural">${esc(item[state.dialect])}</p>
+            <p class="speech-meaning">${esc(item.meaning)}</p>
+          </div>
         </div>
-      </div>
-      <details class="speech-explanation">
-        <summary>What disappeared?</summary>
-        <div class="speech-explanation-body">
-          <span class="fuller-label">Fuller practice form</span>
-          <p class="fuller-line">${esc(item.textbook)}</p>
-          <p>${esc(item.note)}</p>
-        </div>
-      </details>
-    </article>`).join("");
+        <details class="speech-explanation">
+          <summary>What disappeared?</summary>
+          <div class="speech-explanation-body">
+            <span class="fuller-label">Fuller practice form</span>
+            <p class="fuller-line">${esc(fuller)}</p>
+            <p>${esc(item.note)}</p>
+          </div>
+        </details>
+      </article>`;
+    }).join("");
 
     return `<section class="lesson-section lesson-eight-section">
       <div class="section-head">
