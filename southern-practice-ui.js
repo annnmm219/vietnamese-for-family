@@ -88,10 +88,11 @@
 
   function renderMatchedResult(resultNode, matched) {
     const meta = LABEL_UI[matched.label] || LABEL_UI.ambiguous;
+    const sourceLabel = matched.caseId === "Reference" ? "Native-approved reference" : `Gold Set ${esc(matched.caseId)}`;
     resultNode.innerHTML = `<div class="practice-feedback ${meta.tone}">
       <div class="practice-feedback-head">
         <strong>${esc(meta.title)}</strong>
-        <span>Gold Set ${esc(matched.caseId)}</span>
+        <span>${sourceLabel}</span>
       </div>
       <p>${esc(matched.feedback)}</p>
       <details>
@@ -129,7 +130,18 @@
       input.focus();
       return;
     }
-    const matched = scenario.cases.find(item => normalizeVietnamese(item.response) === answer);
+
+    let matched = scenario.cases.find(item => normalizeVietnamese(item.response) === answer);
+    if (!matched && normalizeVietnamese(scenario.canonical) === answer) {
+      matched = {
+        caseId: "Reference",
+        label: "correct_natural",
+        scores: [5,5,5,5,5,5],
+        errors: "none",
+        feedback: "This matches the native-approved Southern reference for the situation."
+      };
+    }
+
     if (matched) renderMatchedResult(resultNode, matched);
     else renderUnknownResult(resultNode, scenario);
   }
