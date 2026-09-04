@@ -6,13 +6,11 @@
 
 ## Project status
 
-**V0.10: all 10 lessons are authored and playable in the mobile-first MVP.**
-
-The curriculum is now complete enough for **native-speaker language validation**, but the wording is not yet considered locked. Audio production and the richer visual/interactivity pass intentionally come after that validation.
+**V0.11: all 10 lessons are playable, Northern and Southern course wording has completed native-speaker review, and Southern Lessons 1–5 now include a free-response benchmark beta.**
 
 The project is a lightweight installable web app hosted on GitHub Pages. It works as a normal website, is designed primarily for phone use, and can be added to a phone home screen as a Progressive Web App (PWA).
 
-Northern and Southern Vietnamese are parallel learning tracks selected at the top of the app. Once a track is selected, the lesson teaches that track rather than forcing the learner to study the other region at the same time.
+Northern and Southern Vietnamese remain parallel learning tracks. The curriculum is authored and controlled; AI-oriented work is being added to the practice and evaluation layer rather than allowing a model to redefine what is taught.
 
 ## Official 10-lesson course
 
@@ -39,29 +37,72 @@ Lesson 10 is a seven-scene continuous family gathering: arrival, meal, personal 
 
 ## Native-speaker validation
 
-Two reviewer packs live in `validation/`:
-
-- `validation/NORTHERN_VALIDATION.md`
-- `validation/SOUTHERN_VALIDATION.md`
-
-They contain the regional words, phrases, family prompts, replies and simulation lines that the course intends to teach. Each item has a stable ID so native speakers can return only the items they would change and the everyday wording they would actually use.
-
-The current course convention to validate is:
+Northern and Southern course wording has completed native-speaker review. The current locked course convention is:
 
 - Northern grandparents: learner self-reference `cháu`
 - Southern grandparents: learner self-reference `con`
 - Parents in both tracks: learner self-reference `con`
+
+Reviewer source packs remain in `validation/` for traceability.
+
+## Southern Gold Set V1
+
+The first evaluator benchmark focuses on Southern Vietnamese across Lessons 1–5.
+
+It contains **120 learner-response cases**, 24 per lesson, covering:
+
+- correct and natural responses
+- acceptable variation
+- correct meaning but unnatural wording
+- politeness/register errors
+- kinship and regional-pronoun errors
+- grammar errors
+- meaning errors
+- ambiguous responses
+
+The benchmark scores six dimensions on a 0–5 scale:
+
+- meaning
+- politeness
+- kinship language
+- naturalness
+- cultural fit
+- grammar
+
+Runtime data is split into five verified modules:
+
+```text
+southern-gold-set-v1-l1.js
+southern-gold-set-v1-l2.js
+southern-gold-set-v1-l3.js
+southern-gold-set-v1-l4.js
+southern-gold-set-v1-l5.js
+```
+
+## Southern free-response beta
+
+When **Southern** is selected, Lessons 1–5 now show an optional **Say it in your own words** practice card.
+
+The current local beta is intentionally conservative:
+
+- if the typed answer matches a labeled Gold Set response, the app shows the benchmark label, feedback and six-dimension scores
+- if the typed answer matches the native-approved canonical response, it is accepted even when that exact line is not one of the 120 labeled cases
+- genuinely new wording is marked **Not in Gold Set V1 yet** rather than being guessed at by deterministic code
+- the native-approved reference remains available for comparison
+
+This is not yet the final AI evaluator. The next evaluator phase will use the same scenario context and benchmark to measure model agreement, false corrections and missed material errors on novel responses.
 
 ## Mobile app / PWA
 
 The project includes:
 
 - responsive phone-first layout
-- horizontal lesson navigation optimized for touch
+- hidden slide-out lesson sidebar
+- compact Northern/Southern accent selector in the header
 - 44+ px touch targets for primary controls
 - standalone app manifest
 - app icons
-- service-worker caching for core course files
+- service-worker caching for core course and benchmark files
 - Android/browser install prompt where supported
 - iPhone compatibility through Safari's **Add to Home Screen** flow
 
@@ -69,25 +110,23 @@ This is intentionally a PWA rather than a native iOS/Android app for the MVP. It
 
 ## Audio strategy
 
-Audio is deliberately paused until native-speaker wording is validated.
+Audio remains a separate production pass.
 
 Lesson 1 proved that seeking tiny segments inside longer MP3 masters is too fragile for a language-learning product. Final production should use **clean individual audio files per word, phrase, sentence and scenario**, with the app controlling slow playback from those approved files.
 
-After validation, the project will:
+The next audio pass should:
 
-1. apply Northern and Southern reviewer corrections
-2. lock all visible wording
-3. extract and deduplicate final spoken material
-4. generate clean Northern and Southern audio files
-5. review every recording against the visible text
-6. integrate normal and slow playback
-7. add final audio to the offline cache
+1. extract and deduplicate final spoken material
+2. generate clean Northern and Southern audio files
+3. review every recording against the visible text
+4. integrate normal and slow playback
+5. add final audio to the offline cache
 
 See `AUDIO_SETUP.md` for the current audio history and production approach.
 
-## Interaction roadmap after audio
+## Interaction roadmap
 
-Once language and sound are stable, the second interaction pass can add:
+The richer interaction pass can add:
 
 - purposeful family-scene illustrations
 - tappable household and meal objects
@@ -95,8 +134,9 @@ Once language and sound are stable, the second interaction pass can add:
 - branching micro-dialogues
 - listening-first interactions for Lesson 8
 - richer multi-speaker staging for Lesson 10
+- free-form AI role-play after the evaluator is reliable
 
-The goal is not to decorate every screen. Visuals and interactions should make a specific language task easier to understand or remember.
+The goal is not to decorate every screen. Visuals and interactions should make a specific language task easier to understand, remember or perform.
 
 ## Project structure
 
@@ -106,9 +146,9 @@ vietnamese-for-family/
 ├── styles.css
 ├── course.css
 ├── mobile.css
-├── lesson-8.css
-├── lesson-9.css
-├── lesson-10.css
+├── hero-tuning.css
+├── shell-layout.css
+├── southern-practice.css
 ├── app.js
 ├── audio-fix.js
 ├── course-data.js
@@ -121,6 +161,14 @@ vietnamese-for-family/
 ├── lesson-10.js
 ├── lesson-10-ui.js
 ├── regional-pronouns.js
+├── regional-sanity.js
+├── southern-gold-set-v1-l1.js
+├── southern-gold-set-v1-l2.js
+├── southern-gold-set-v1-l3.js
+├── southern-gold-set-v1-l4.js
+├── southern-gold-set-v1-l5.js
+├── southern-practice-ui.js
+├── shell-layout.js
 ├── validation/
 │   ├── NORTHERN_VALIDATION.md
 │   └── SOUTHERN_VALIDATION.md
@@ -144,7 +192,7 @@ vietnamese-for-family/
 5. Relationship terms taught inside actual relationships.
 6. Cultural meaning taught alongside literal meaning.
 7. Short, touch-friendly sessions rather than textbook chapters.
-8. Validate wording before final audio production.
+8. Keep curriculum deterministic; use AI for ambiguous practice and evaluation.
 9. Lesson 8 is comprehension-heavy rather than vocabulary-heavy.
 10. Lesson 10 is a capstone simulation, not another vocabulary chapter.
 
