@@ -1,4 +1,4 @@
-const CACHE_NAME = "vff-v0.10.3";
+const CACHE_NAME = "vff-v0.11";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -10,6 +10,7 @@ const CORE_ASSETS = [
   "./mobile.css",
   "./hero-tuning.css",
   "./shell-layout.css",
+  "./southern-practice.css",
   "./course-data.js",
   "./lesson-2.js",
   "./lesson-7.js",
@@ -18,12 +19,18 @@ const CORE_ASSETS = [
   "./lesson-10.js",
   "./regional-pronouns.js",
   "./regional-sanity.js",
+  "./southern-gold-set-v1-l1.js",
+  "./southern-gold-set-v1-l2.js",
+  "./southern-gold-set-v1-l3.js",
+  "./southern-gold-set-v1-l4.js",
+  "./southern-gold-set-v1-l5.js",
   "./app.js",
   "./audio-fix.js",
   "./lesson-8-ui.js",
   "./lesson-9-ui.js",
   "./lesson-10-ui.js",
   "./shell-layout.js",
+  "./southern-practice-ui.js",
   "./manifest.webmanifest",
   "./icon-192.png",
   "./icon-512.png",
