@@ -12,6 +12,10 @@
     ambiguous: { title: "This could depend on context", tone: "neutral" }
   };
 
+  function evaluatorClient() {
+    return window.VFF_EVALUATOR_CLIENT || null;
+  }
+
   function goldLesson(lessonId) {
     return window[`SOUTHERN_GOLD_SET_V1_L${lessonId}`] || null;
   }
@@ -48,12 +52,16 @@
     const index = currentScenarioIndex(lesson.id, data.scenarios.length);
     const scenario = data.scenarios[index];
     const spokenPrompt = scenario.prompt && scenario.prompt !== "—";
+    const aiReady = evaluatorClient()?.isConfigured?.() === true;
+    const evaluatorCopy = aiReady
+      ? "Gold Set responses are checked locally. New wording is evaluated by the Southern AI evaluator."
+      : "Gold Set responses are checked locally. New wording stays unscored until the secure AI endpoint is connected.";
 
     return `<section class="lesson-section southern-practice-section" data-southern-practice data-lesson-id="${lesson.id}" data-scenario-id="${esc(scenario.scenarioId)}">
       <div class="section-head">
         <p class="section-kicker">Southern free response · Beta</p>
         <h2>Say it in your own words.</h2>
-        <p>Type what you would actually say. Gold Set V1 can score responses already in the 120-case benchmark. New wording is deliberately left unscored until the AI evaluator is connected.</p>
+        <p>${esc(evaluatorCopy)}</p>
       </div>
       <div class="section-body">
         <div class="practice-situation">
@@ -67,7 +75,7 @@
         </div>
 
         <label class="practice-input-label" for="practice-answer-${lesson.id}">Your answer</label>
-        <textarea id="practice-answer-${lesson.id}" class="practice-answer" rows="3" autocomplete="off" spellcheck="false" placeholder="Type your Southern Vietnamese response…"></textarea>
+        <textarea id="practice-answer-${lesson.id}" class="practice-answer" rows="3" autocomplete="off" spellcheck="false" maxlength="400" placeholder="Type your Southern Vietnamese response…"></textarea>
         <div class="practice-actions">
           <button class="practice-check" type="button" data-practice-check>Check answer</button>
           <button class="practice-next" type="button" data-practice-next>Try another situation</button>
@@ -103,13 +111,40 @@
     </div>`;
   }
 
+  function renderAIResult(resultNode, evaluation) {
+    const client = evaluatorClient();
+    const lowConfidence = evaluation.confidence < (client?.minimumConfidence || 0.65) || evaluation.judgmentMode !== "firm";
+    const meta = lowConfidence
+      ? { title: "Soft AI judgment", tone: "neutral" }
+      : (LABEL_UI[evaluation.overallLabel] || LABEL_UI.ambiguous);
+    const confidence = Math.round(evaluation.confidence * 100);
+    const errorText = evaluation.errorClasses?.length
+      ? evaluation.errorClasses.join(", ").replaceAll("_", " ")
+      : "none";
+
+    resultNode.innerHTML = `<div class="practice-feedback ${meta.tone}">
+      <div class="practice-feedback-head">
+        <strong>${esc(meta.title)}</strong>
+        <span>AI beta · ${confidence}% confidence</span>
+      </div>
+      <p>${esc(evaluation.feedback || "The evaluator returned a structured judgment.")}</p>
+      ${evaluation.suggestedResponse ? `<p class="practice-reference">${esc(evaluation.suggestedResponse)}</p>` : ""}
+      ${lowConfidence ? `<p class="practice-low-confidence">This result is intentionally non-categorical. Treat it as guidance rather than a correction.</p>` : ""}
+      <details>
+        <summary>See evaluator scores</summary>
+        ${scoreGrid(evaluation.scores)}
+        <p class="practice-error-tags"><strong>Signals:</strong> ${esc(errorText)}</p>
+      </details>
+    </div>`;
+  }
+
   function renderUnknownResult(resultNode, scenario) {
     resultNode.innerHTML = `<div class="practice-feedback neutral">
       <div class="practice-feedback-head">
-        <strong>Not in Gold Set V1 yet</strong>
-        <span>Novel response</span>
+        <strong>Not scored yet</strong>
+        <span>AI endpoint not connected</span>
       </div>
-      <p>This local beta will not guess whether new wording is correct. The future AI evaluator will score novel answers against meaning, politeness, kinship language, naturalness, cultural fit and grammar.</p>
+      <p>This answer is not one of the 120 Gold Set cases. The website will not guess whether it is correct until the secure evaluator endpoint is configured.</p>
       <details>
         <summary>Show native-approved reference</summary>
         <p class="practice-reference">${esc(scenario.canonical)}</p>
@@ -117,14 +152,40 @@
     </div>`;
   }
 
-  function checkPractice(card) {
+  function renderEvaluatorError(resultNode, scenario) {
+    resultNode.innerHTML = `<div class="practice-feedback neutral">
+      <div class="practice-feedback-head">
+        <strong>Evaluator unavailable</strong>
+        <span>Your answer was not marked wrong</span>
+      </div>
+      <p>The AI evaluator could not return a reliable result. Try again later or compare with the native-approved reference.</p>
+      <details>
+        <summary>Show native-approved reference</summary>
+        <p class="practice-reference">${esc(scenario.canonical)}</p>
+      </details>
+    </div>`;
+  }
+
+  function setEvaluating(card, active) {
+    const button = card.querySelector("[data-practice-check]");
+    const input = card.querySelector(".practice-answer");
+    if (button) {
+      button.disabled = active;
+      button.textContent = active ? "Evaluating…" : "Check answer";
+    }
+    if (input) input.setAttribute("aria-busy", String(active));
+  }
+
+  async function checkPractice(card) {
     const lessonId = Number(card.dataset.lessonId);
+    const lesson = LESSONS.find(item => item.id === lessonId);
     const data = goldLesson(lessonId);
     const scenario = data?.scenarios?.find(item => item.scenarioId === card.dataset.scenarioId);
-    if (!scenario) return;
+    if (!scenario || !lesson) return;
     const input = card.querySelector(".practice-answer");
     const resultNode = card.querySelector("[data-practice-result]");
-    const answer = normalizeVietnamese(input.value);
+    const rawAnswer = String(input.value || "").trim();
+    const answer = normalizeVietnamese(rawAnswer);
     if (!answer) {
       resultNode.innerHTML = `<p class="practice-empty">Type an answer first.</p>`;
       input.focus();
@@ -142,8 +203,27 @@
       };
     }
 
-    if (matched) renderMatchedResult(resultNode, matched);
-    else renderUnknownResult(resultNode, scenario);
+    if (matched) {
+      renderMatchedResult(resultNode, matched);
+      return;
+    }
+
+    const client = evaluatorClient();
+    if (!client?.isConfigured?.()) {
+      renderUnknownResult(resultNode, scenario);
+      return;
+    }
+
+    setEvaluating(card, true);
+    resultNode.innerHTML = `<div class="practice-feedback neutral practice-loading"><strong>Evaluating your wording…</strong><p>Checking meaning, tone, relationship language and naturalness.</p></div>`;
+    try {
+      const evaluation = await client.evaluate({ lesson, scenario, learnerResponse: rawAnswer });
+      renderAIResult(resultNode, evaluation);
+    } catch {
+      renderEvaluatorError(resultNode, scenario);
+    } finally {
+      setEvaluating(card, false);
+    }
   }
 
   function nextScenario(card) {
@@ -169,9 +249,7 @@
       return;
     }
     const next = event.target.closest("[data-practice-next]");
-    if (next) {
-      nextScenario(next.closest("[data-southern-practice]"));
-    }
+    if (next) nextScenario(next.closest("[data-southern-practice]"));
   });
 
   document.addEventListener("keydown", event => {
