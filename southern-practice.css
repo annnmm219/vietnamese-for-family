@@ -61,9 +61,20 @@
   background: white;
   color: var(--ink);
   font: inherit;
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1.55;
   outline: none;
+  position: relative;
+  z-index: 5;
+  pointer-events: auto !important;
+  touch-action: auto;
+  -webkit-user-select: text;
+  user-select: text;
+  -webkit-touch-callout: default;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: text;
+  caret-color: var(--ink);
   transition: border-color .15s ease, box-shadow .15s ease;
 }
 
@@ -251,6 +262,32 @@
   color: #9a4242;
   font-size: 12px;
   font-weight: 600;
+}
+
+/* iOS Safari/PWA interaction hardening. Hidden drawer layers must not intercept taps. */
+.southern-practice-section,
+.southern-practice-section .section-body {
+  position: relative;
+  z-index: 1;
+  pointer-events: auto;
+}
+
+.sidebar-backdrop {
+  display: none !important;
+}
+
+.sidebar-backdrop.open {
+  display: block !important;
+}
+
+.lesson-sidebar:not(.open) {
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.lesson-sidebar.open {
+  visibility: visible;
+  pointer-events: auto;
 }
 
 @media (max-width: 760px) {
