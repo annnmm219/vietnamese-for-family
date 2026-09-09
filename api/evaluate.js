@@ -88,30 +88,48 @@ function cors(req, res) {
   const allowedOrigin = process.env.SITE_ORIGIN || "https://annnmm219.github.io";
   const origin = req.headers.origin || allowedOrigin;
   res.setHeader("Access-Control-Allow-Origin", origin === allowedOrigin ? origin : allowedOrigin);
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Vary", "Origin");
   return { allowedOrigin, origin };
+}
+
+function safeUpstreamError(payload) {
+  const error = payload?.error || {};
+  return {
+    upstream_code: String(error.code || error.type || "unknown").slice(0, 120),
+    upstream_message: String(error.message || "OpenAI request failed").slice(0, 300)
+  };
 }
 
 module.exports = async function handler(req, res) {
   const { allowedOrigin, origin } = cors(req, res);
 
   if (req.method === "OPTIONS") return res.status(204).end();
+
+  if (req.method === "GET") {
+    return res.status(200).json({
+      status: "ok",
+      api_key_configured: Boolean(process.env.OPENAI_API_KEY),
+      model: process.env.OPENAI_MODEL || "gpt-5.6-terra",
+      evaluator_version: "southern-evaluator-v1"
+    });
+  }
+
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   if (origin !== allowedOrigin) return res.status(403).json({ error: "Origin not allowed" });
-  if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: "Evaluator is not configured" });
+  if (!process.env.OPENAI_API_KEY) return res.status(503).json({ error: "Evaluator is not configured", code: "NO_API_KEY" });
 
   let body = req.body;
   if (typeof body === "string") {
     try { body = JSON.parse(body); }
-    catch { return res.status(400).json({ error: "Invalid JSON" }); }
+    catch { return res.status(400).json({ error: "Invalid JSON", code: "INVALID_JSON" }); }
   }
 
   const lessonId = Number(body?.lesson?.id);
   const learnerResponse = String(body?.learner_response || "").trim();
   if (body?.region !== "south" || lessonId < 1 || lessonId > 5 || !learnerResponse || learnerResponse.length > 400) {
-    return res.status(400).json({ error: "Invalid evaluator input" });
+    return res.status(400).json({ error: "Invalid evaluator input", code: "INVALID_INPUT" });
   }
 
   try {
@@ -123,6 +141,7 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         model: process.env.OPENAI_MODEL || "gpt-5.6-terra",
+        reasoning: { effort: "low" },
         input: [
           { role: "system", content: systemPrompt() },
           { role: "user", content: JSON.stringify({
@@ -142,17 +161,39 @@ module.exports = async function handler(req, res) {
       })
     });
 
-    if (!upstream.ok) return res.status(502).json({ error: "Evaluator model request failed" });
+    if (!upstream.ok) {
+      let upstreamJson = {};
+      try { upstreamJson = await upstream.json(); } catch {}
+      return res.status(502).json({
+        error: "Evaluator model request failed",
+        code: "OPENAI_UPSTREAM_ERROR",
+        upstream_status: upstream.status,
+        ...safeUpstreamError(upstreamJson)
+      });
+    }
+
     const upstreamJson = await upstream.json();
     const outputText = extractOutputText(upstreamJson);
-    if (!outputText) return res.status(502).json({ error: "Evaluator returned no structured result" });
+    if (!outputText) {
+      return res.status(502).json({
+        error: "Evaluator returned no structured result",
+        code: "NO_STRUCTURED_OUTPUT"
+      });
+    }
 
     try {
       return res.status(200).json(JSON.parse(outputText));
     } catch {
-      return res.status(502).json({ error: "Evaluator returned invalid structured result" });
+      return res.status(502).json({
+        error: "Evaluator returned invalid structured result",
+        code: "INVALID_STRUCTURED_OUTPUT"
+      });
     }
-  } catch {
-    return res.status(502).json({ error: "Evaluator request failed" });
+  } catch (error) {
+    return res.status(502).json({
+      error: "Evaluator request failed",
+      code: "EVALUATOR_FETCH_FAILED",
+      detail: String(error?.message || "unknown").slice(0, 300)
+    });
   }
 };
