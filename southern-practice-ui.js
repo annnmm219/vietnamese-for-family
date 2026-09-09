@@ -54,10 +54,10 @@
     const spokenPrompt = scenario.prompt && scenario.prompt !== "—";
     const aiReady = evaluatorClient()?.isConfigured?.() === true;
     const evaluatorCopy = aiReady
-      ? "Gold Set responses are checked locally. New wording is evaluated by the Southern AI evaluator."
-      : "Gold Set responses are checked locally. New wording stays unscored until the secure AI endpoint is connected.";
+      ? "Write any answer you would actually use. The AI evaluates the meaning and family context; Gold Set V1 stays behind the scenes as a benchmark and fallback."
+      : "Write any answer you would actually use. Gold Set V1 provides limited fallback scoring until the AI evaluator is available.";
 
-    return `<section class="lesson-section southern-practice-section" data-southern-practice data-lesson-id="${lesson.id}" data-scenario-id="${esc(scenario.scenarioId)}">
+    return `<section class="lesson-section southern-practice-section" data-southern-practice data-practice-lesson-id="${lesson.id}" data-scenario-id="${esc(scenario.scenarioId)}">
       <div class="section-head">
         <p class="section-kicker">Southern free response · Beta</p>
         <h2>Say it in your own words.</h2>
@@ -94,15 +94,18 @@
     else lessonRoot.insertAdjacentHTML("beforeend", card);
   }
 
-  function renderMatchedResult(resultNode, matched) {
+  function renderMatchedResult(resultNode, matched, fallback = false) {
     const meta = LABEL_UI[matched.label] || LABEL_UI.ambiguous;
-    const sourceLabel = matched.caseId === "Reference" ? "Native-approved reference" : `Gold Set ${esc(matched.caseId)}`;
+    const sourceLabel = matched.caseId === "Reference"
+      ? "Native-approved reference fallback"
+      : `${fallback ? "Fallback · " : ""}Gold Set ${esc(matched.caseId)}`;
     resultNode.innerHTML = `<div class="practice-feedback ${meta.tone}">
       <div class="practice-feedback-head">
         <strong>${esc(meta.title)}</strong>
         <span>${sourceLabel}</span>
       </div>
       <p>${esc(matched.feedback)}</p>
+      ${fallback ? `<p class="practice-low-confidence">The live AI evaluator was unavailable, so this result came from the benchmark fallback.</p>` : ""}
       <details>
         <summary>See benchmark scores</summary>
         ${scoreGrid(matched.scores)}
@@ -142,9 +145,9 @@
     resultNode.innerHTML = `<div class="practice-feedback neutral">
       <div class="practice-feedback-head">
         <strong>Not scored yet</strong>
-        <span>AI endpoint not connected</span>
+        <span>No benchmark match</span>
       </div>
-      <p>This answer is not one of the 120 Gold Set cases. The website will not guess whether it is correct until the secure evaluator endpoint is configured.</p>
+      <p>The live evaluator is unavailable and this wording is not one of the benchmark cases, so the app will not guess.</p>
       <details>
         <summary>Show native-approved reference</summary>
         <p class="practice-reference">${esc(scenario.canonical)}</p>
@@ -152,13 +155,22 @@
     </div>`;
   }
 
-  function renderEvaluatorError(resultNode, scenario) {
+  function diagnosticText(error) {
+    if (!error) return "Unknown evaluator error";
+    const parts = [error.code];
+    if (error.upstreamStatus) parts.push(`OpenAI HTTP ${error.upstreamStatus}`);
+    if (error.upstreamCode) parts.push(error.upstreamCode);
+    return parts.filter(Boolean).join(" · ") || "Unknown evaluator error";
+  }
+
+  function renderEvaluatorError(resultNode, scenario, error) {
     resultNode.innerHTML = `<div class="practice-feedback neutral">
       <div class="practice-feedback-head">
         <strong>Evaluator unavailable</strong>
         <span>Your answer was not marked wrong</span>
       </div>
-      <p>The AI evaluator could not return a reliable result. Try again later or compare with the native-approved reference.</p>
+      <p>The AI evaluator could not return a result. Diagnostic: <strong>${esc(diagnosticText(error))}</strong>.</p>
+      ${error?.upstreamMessage ? `<p>${esc(error.upstreamMessage)}</p>` : ""}
       <details>
         <summary>Show native-approved reference</summary>
         <p class="practice-reference">${esc(scenario.canonical)}</p>
@@ -176,22 +188,7 @@
     if (input) input.setAttribute("aria-busy", String(active));
   }
 
-  async function checkPractice(card) {
-    const lessonId = Number(card.dataset.lessonId);
-    const lesson = LESSONS.find(item => item.id === lessonId);
-    const data = goldLesson(lessonId);
-    const scenario = data?.scenarios?.find(item => item.scenarioId === card.dataset.scenarioId);
-    if (!scenario || !lesson) return;
-    const input = card.querySelector(".practice-answer");
-    const resultNode = card.querySelector("[data-practice-result]");
-    const rawAnswer = String(input.value || "").trim();
-    const answer = normalizeVietnamese(rawAnswer);
-    if (!answer) {
-      resultNode.innerHTML = `<p class="practice-empty">Type an answer first.</p>`;
-      input.focus();
-      return;
-    }
-
+  function fallbackMatch(scenario, answer) {
     let matched = scenario.cases.find(item => normalizeVietnamese(item.response) === answer);
     if (!matched && normalizeVietnamese(scenario.canonical) === answer) {
       matched = {
@@ -202,15 +199,32 @@
         feedback: "This matches the native-approved Southern reference for the situation."
       };
     }
+    return matched || null;
+  }
 
-    if (matched) {
-      renderMatchedResult(resultNode, matched);
+  async function checkPractice(card) {
+    const lessonId = Number(card.dataset.practiceLessonId);
+    const lesson = LESSONS.find(item => item.id === lessonId);
+    const data = goldLesson(lessonId);
+    const scenario = data?.scenarios?.find(item => item.scenarioId === card.dataset.scenarioId);
+    if (!scenario || !lesson) return;
+
+    const input = card.querySelector(".practice-answer");
+    const resultNode = card.querySelector("[data-practice-result]");
+    const rawAnswer = String(input.value || "").trim();
+    const answer = normalizeVietnamese(rawAnswer);
+    if (!answer) {
+      resultNode.innerHTML = `<p class="practice-empty">Type an answer first.</p>`;
+      input.focus();
       return;
     }
 
+    const fallback = fallbackMatch(scenario, answer);
     const client = evaluatorClient();
+
     if (!client?.isConfigured?.()) {
-      renderUnknownResult(resultNode, scenario);
+      if (fallback) renderMatchedResult(resultNode, fallback, true);
+      else renderUnknownResult(resultNode, scenario);
       return;
     }
 
@@ -219,15 +233,16 @@
     try {
       const evaluation = await client.evaluate({ lesson, scenario, learnerResponse: rawAnswer });
       renderAIResult(resultNode, evaluation);
-    } catch {
-      renderEvaluatorError(resultNode, scenario);
+    } catch (error) {
+      if (fallback) renderMatchedResult(resultNode, fallback, true);
+      else renderEvaluatorError(resultNode, scenario, error);
     } finally {
       setEvaluating(card, false);
     }
   }
 
   function nextScenario(card) {
-    const lessonId = Number(card.dataset.lessonId);
+    const lessonId = Number(card.dataset.practiceLessonId);
     const data = goldLesson(lessonId);
     if (!data?.scenarios?.length) return;
     const current = currentScenarioIndex(lessonId, data.scenarios.length);
