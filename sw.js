@@ -1,4 +1,4 @@
-const CACHE_NAME = "vff-v0.12.4";
+const CACHE_NAME = "vff-v0.13";
 const CORE_ASSETS = [
   "./",
   "./index.html",
