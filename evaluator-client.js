@@ -82,8 +82,15 @@
       });
 
       if (!response.ok) {
-        const error = new Error(`Evaluator request failed (${response.status}).`);
-        error.code = "HTTP_ERROR";
+        let details = {};
+        try { details = await response.json(); } catch {}
+        const error = new Error(String(details?.error || `Evaluator request failed (${response.status}).`));
+        error.code = String(details?.code || "HTTP_ERROR");
+        error.status = response.status;
+        error.upstreamStatus = details?.upstream_status;
+        error.upstreamCode = details?.upstream_code;
+        error.upstreamMessage = details?.upstream_message;
+        error.detail = details?.detail;
         throw error;
       }
 
